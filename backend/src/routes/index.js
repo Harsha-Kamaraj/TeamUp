@@ -5,6 +5,7 @@ import userRoutes from './user.routes.js';
 import postRoutes from './post.routes.js';
 import interestRoutes from './interest.routes.js';
 import conversationRoutes from './conversation.routes.js';
+import dashboardRoutes from './dashboard.routes.js';
 
 /**
  * API router — the single mount point for every feature area.
@@ -20,5 +21,6 @@ router.use('/users', userRoutes);
 router.use('/posts', postRoutes);
 router.use('/interests', interestRoutes);
 router.use('/conversations', conversationRoutes);
+router.use('/dashboard', dashboardRoutes);
 
 export default router;
