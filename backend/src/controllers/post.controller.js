@@ -1,4 +1,4 @@
-import Post from '../models/Post.js';
+import Post, { POST_TYPES, POST_MODES } from '../models/Post.js';
 import ApiError from '../utils/ApiError.js';
 import ApiResponse from '../utils/ApiResponse.js';
 import asyncHandler from '../utils/asyncHandler.js';
@@ -6,17 +6,38 @@ import asyncHandler from '../utils/asyncHandler.js';
 // Author fields to include when returning a post (for display).
 const AUTHOR_FIELDS = 'name avatar college department';
 
+// Escape user input before using it in a RegExp (prevents regex injection).
+const escapeRegex = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 /**
  * GET /posts   (public)
- * Paginated feed of open opportunities, newest first.
- * Query: page (default 1), limit (default 12, max 50).
- * Phase 8 extends the filter with search/category/skill params.
+ * Paginated feed of open opportunities, newest first, with optional filters.
+ *
+ * Query params:
+ *   page, limit           — pagination (limit max 50)
+ *   search                — matches title / description / skills / tags
+ *   type                  — one of the POST_TYPES (category)
+ *   mode                  — remote | offline | hybrid
+ *   skill, tag            — exact (case-insensitive) match within arrays
  */
 export const listPosts = asyncHandler(async (req, res) => {
   const page = Math.max(1, parseInt(req.query.page, 10) || 1);
   const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 12));
 
   const filter = { status: 'open' };
+
+  // Structured filters (whitelisted against the enums).
+  if (req.query.type && POST_TYPES.includes(req.query.type)) filter.type = req.query.type;
+  if (req.query.mode && POST_MODES.includes(req.query.mode)) filter.mode = req.query.mode;
+  if (req.query.skill) filter.requiredSkills = new RegExp(`^${escapeRegex(req.query.skill.trim())}$`, 'i');
+  if (req.query.tag) filter.tags = new RegExp(`^${escapeRegex(req.query.tag.trim())}$`, 'i');
+
+  // Free-text search across the most relevant fields.
+  const search = req.query.search?.trim();
+  if (search) {
+    const rx = new RegExp(escapeRegex(search), 'i');
+    filter.$or = [{ title: rx }, { description: rx }, { tags: rx }, { requiredSkills: rx }];
+  }
 
   const [posts, total] = await Promise.all([
     Post.find(filter)

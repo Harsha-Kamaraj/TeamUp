@@ -73,8 +73,12 @@ const postSchema = new Schema(
   }
 );
 
-// Common access patterns: newest-first feeds, filtered by status/type (Phase 7/8).
+// Common access patterns: newest-first feeds, filtered by status/type/mode.
 postSchema.index({ status: 1, createdAt: -1 });
+postSchema.index({ status: 1, type: 1, createdAt: -1 });
+// Multikey indexes for array-field filters (skill / tag).
+postSchema.index({ requiredSkills: 1 });
+postSchema.index({ tags: 1 });
 
 const Post = model('Post', postSchema);
 
