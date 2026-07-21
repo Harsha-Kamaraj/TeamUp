@@ -80,6 +80,11 @@ export function AuthProvider({ children }) {
     return me;
   }, []);
 
+  /** Replace the current user with a fresh copy (e.g. after a profile save). */
+  const updateCurrentUser = useCallback((updatedUser) => {
+    setUser(updatedUser);
+  }, []);
+
   const value = useMemo(
     () => ({
       user,
@@ -90,8 +95,9 @@ export function AuthProvider({ children }) {
       register,
       logout,
       refreshUser,
+      updateCurrentUser,
     }),
-    [user, status, login, register, logout, refreshUser]
+    [user, status, login, register, logout, refreshUser, updateCurrentUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

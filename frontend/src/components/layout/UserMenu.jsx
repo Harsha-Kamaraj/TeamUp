@@ -77,6 +77,22 @@ export default function UserMenu({ user, onLogout }) {
           >
             Dashboard
           </Link>
+          <Link
+            to={`/profile/${user.id}`}
+            role="menuitem"
+            onClick={() => setOpen(false)}
+            className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50"
+          >
+            My profile
+          </Link>
+          <Link
+            to="/settings/profile"
+            role="menuitem"
+            onClick={() => setOpen(false)}
+            className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50"
+          >
+            Edit profile
+          </Link>
 
           <button
             type="button"

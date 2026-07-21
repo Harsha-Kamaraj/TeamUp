@@ -8,6 +8,21 @@ const { Schema, model } = mongoose;
 // Cost factor for bcrypt. 12 is a good balance of security vs. speed in 2024+.
 const BCRYPT_SALT_ROUNDS = 12;
 
+// Profile enums — exported so validators/frontend can stay in sync.
+// '' is allowed as an "unset" value for year.
+export const YEAR_OPTIONS = [
+  '',
+  '1st Year',
+  '2nd Year',
+  '3rd Year',
+  '4th Year',
+  '5th Year',
+  'Graduate',
+  'Alumni',
+];
+export const AVAILABILITY_OPTIONS = ['available', 'limited', 'unavailable'];
+export const WORK_MODE_OPTIONS = ['remote', 'offline', 'hybrid', 'any'];
+
 const userSchema = new Schema(
   {
     name: {
@@ -55,8 +70,41 @@ const userSchema = new Schema(
     passwordChangedAt: { type: Date, select: false },
     lastLoginAt: { type: Date },
 
-    // NOTE: Rich student-profile fields (college, department, year, skills,
-    // bio, links, availability, badges…) are added in Phase 5.
+    // ── Student profile (Phase 5) ───────────────────────────────────────
+    college: { type: String, trim: true, maxlength: 120, default: '' },
+    department: { type: String, trim: true, maxlength: 120, default: '' },
+    year: { type: String, enum: YEAR_OPTIONS, default: '' },
+    bio: { type: String, trim: true, maxlength: 600, default: '' },
+    skills: { type: [String], default: [] },
+
+    links: {
+      github: { type: String, trim: true, default: '' },
+      linkedin: { type: String, trim: true, default: '' },
+      portfolio: { type: String, trim: true, default: '' },
+      resume: { type: String, trim: true, default: '' },
+    },
+
+    hackathons: { type: [String], default: [] },
+    projects: {
+      type: [
+        {
+          _id: false,
+          title: { type: String, trim: true, required: true, maxlength: 120 },
+          description: { type: String, trim: true, maxlength: 400, default: '' },
+          url: { type: String, trim: true, default: '' },
+        },
+      ],
+      default: [],
+    },
+
+    availability: { type: String, enum: AVAILABILITY_OPTIONS, default: 'available' },
+    workMode: { type: String, enum: WORK_MODE_OPTIONS, default: 'any' },
+
+    // Future-ready: earned achievement badges (populated in a later phase).
+    badges: { type: [String], default: [] },
+
+    // Cloudinary public_id for the avatar, so we can delete/replace it.
+    avatarPublicId: { type: String, select: false, default: '' },
   },
   {
     timestamps: true,
@@ -73,6 +121,7 @@ const userSchema = new Schema(
         delete ret.passwordResetTokenHash;
         delete ret.passwordResetExpires;
         delete ret.passwordChangedAt;
+        delete ret.avatarPublicId;
         return ret;
       },
     },

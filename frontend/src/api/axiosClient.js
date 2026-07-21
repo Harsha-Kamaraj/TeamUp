@@ -31,6 +31,14 @@ export function setOnAuthFailure(handler) {
 apiClient.interceptors.request.use((cfg) => {
   const token = getAccessToken();
   if (token) cfg.headers.Authorization = `Bearer ${token}`;
+
+  // For file uploads, drop our default JSON content-type so the browser can
+  // set multipart/form-data with the correct boundary.
+  if (typeof FormData !== 'undefined' && cfg.data instanceof FormData) {
+    if (typeof cfg.headers?.setContentType === 'function') cfg.headers.setContentType(null);
+    else if (cfg.headers) delete cfg.headers['Content-Type'];
+  }
+
   return cfg;
 });
 

@@ -6,6 +6,8 @@ import GuestRoute from './GuestRoute';
 import HomePage from '@/pages/HomePage';
 import NotFoundPage from '@/pages/NotFoundPage';
 import DashboardPage from '@/pages/DashboardPage';
+import ProfilePage from '@/pages/ProfilePage';
+import EditProfilePage from '@/pages/EditProfilePage';
 import LoginPage from '@/pages/auth/LoginPage';
 import RegisterPage from '@/pages/auth/RegisterPage';
 import ForgotPasswordPage from '@/pages/auth/ForgotPasswordPage';
@@ -38,6 +40,8 @@ export default function AppRoutes() {
         {/* Authenticated only */}
         <Route element={<ProtectedRoute />}>
           <Route path="dashboard" element={<DashboardPage />} />
+          <Route path="settings/profile" element={<EditProfilePage />} />
+          <Route path="profile/:id" element={<ProfilePage />} />
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />

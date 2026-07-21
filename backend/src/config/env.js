@@ -84,7 +84,21 @@ const env = {
       pass: read('SMTP_PASS', { fallback: undefined }),
     },
   },
+
+  // ── Image upload — Cloudinary (Phase 5) ─────────────────────────────────
+  // Optional: if unset, avatar upload is disabled with a clear message and
+  // the rest of the app works fine.
+  cloudinary: {
+    cloudName: read('CLOUDINARY_CLOUD_NAME', { fallback: undefined }),
+    apiKey: read('CLOUDINARY_API_KEY', { fallback: undefined }),
+    apiSecret: read('CLOUDINARY_API_SECRET', { fallback: undefined }),
+  },
 };
+
+// True only when all three Cloudinary credentials are present.
+env.cloudinary.isConfigured = Boolean(
+  env.cloudinary.cloudName && env.cloudinary.apiKey && env.cloudinary.apiSecret
+);
 
 if (missing.length > 0) {
   throw new Error(

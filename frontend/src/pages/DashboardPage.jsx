@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { authApi } from '@/api/authApi';
 import { useAuth } from '@/contexts/AuthContext';
 import { Alert, Button, Card, Container } from '@/components/ui';
@@ -74,7 +75,21 @@ export default function DashboardPage() {
 
       {/* Account summary */}
       <Card className="mb-8">
-        <h2 className="text-sm font-semibold tracking-wide text-slate-500 uppercase">Account</h2>
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-sm font-semibold tracking-wide text-slate-500 uppercase">Account</h2>
+          <div className="flex gap-2">
+            <Link to={`/profile/${user?.id}`}>
+              <Button variant="ghost" size="sm">
+                View profile
+              </Button>
+            </Link>
+            <Link to="/settings/profile">
+              <Button variant="secondary" size="sm">
+                Edit profile
+              </Button>
+            </Link>
+          </div>
+        </div>
         <dl className="mt-4 grid gap-4 sm:grid-cols-3">
           <div>
             <dt className="text-xs text-slate-500">Name</dt>

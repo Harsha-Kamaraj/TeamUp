@@ -34,6 +34,11 @@ export default function errorHandler(err, req, res, next) {
     statusCode = 409;
     const field = Object.keys(err.keyValue || {})[0] ?? 'field';
     message = `That ${field} is already in use`;
+  } else if (err.name === 'MulterError') {
+    // File upload issues (e.g. too large, unexpected field)
+    statusCode = 400;
+    message =
+      err.code === 'LIMIT_FILE_SIZE' ? 'File is too large (max 2 MB)' : `Upload error: ${err.message}`;
   }
 
   // Log server-side. 5xx are real problems; 4xx are expected client errors.
