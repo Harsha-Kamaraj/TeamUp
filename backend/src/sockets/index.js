@@ -2,7 +2,9 @@ import { Server } from 'socket.io';
 import env from '../config/env.js';
 import logger from '../utils/logger.js';
 import { socketAuth } from './socketAuth.js';
+import { setIO } from './registry.js';
 import { createMessage, markConversationRead } from '../services/chat.service.js';
+import { notifyMessage, markConversationNotificationsRead } from '../services/notification.service.js';
 
 // userId -> number of active connections (supports multiple tabs).
 const online = new Map();
@@ -18,6 +20,7 @@ export function initSocket(httpServer) {
   const io = new Server(httpServer, {
     cors: { origin: env.clientUrls, credentials: true },
   });
+  setIO(io); // let services (notifications) emit to users
 
   io.use(socketAuth);
 
@@ -44,6 +47,12 @@ export function initSocket(httpServer) {
         // Deliver to the sender (tab sync) and every recipient.
         io.to(`user:${userId}`).emit('message:new', payload);
         recipientIds.forEach((rid) => io.to(`user:${rid}`).emit('message:new', payload));
+        // Bell notification for each recipient (deduped per conversation).
+        await Promise.all(
+          recipientIds.map((rid) =>
+            notifyMessage({ recipientId: rid, sender: message.sender, conversationId })
+          )
+        );
         ack?.({ ok: true, message: message.toJSON() });
       } catch (err) {
         ack?.({ ok: false, error: err.message });
@@ -64,6 +73,9 @@ export function initSocket(httpServer) {
         otherIds.forEach((oid) =>
           io.to(`user:${oid}`).emit('conversation:read', { conversationId, by: userId })
         );
+        // Clear this user's message notifications for the conversation.
+        await markConversationNotificationsRead({ userId, conversationId });
+        io.to(`user:${userId}`).emit('notifications:updated');
         ack?.({ ok: true });
       } catch (err) {
         ack?.({ ok: false, error: err.message });

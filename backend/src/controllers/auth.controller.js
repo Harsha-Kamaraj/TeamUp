@@ -16,6 +16,7 @@ import {
   sendVerificationEmail,
   sendPasswordResetEmail,
 } from '../services/email.service.js';
+import { notifySystem } from '../services/notification.service.js';
 
 // Small audit trail attached to each refresh-token session.
 function sessionMeta(req) {
@@ -46,6 +47,13 @@ export const register = asyncHandler(async (req, res) => {
   await user.save(); // hashes password + persists verification hash
 
   await sendVerificationEmail(user, rawVerifyToken);
+
+  // Welcome notification (waiting in the bell when they first look).
+  await notifySystem({
+    userId: user.id,
+    text: 'Welcome to TeamUp! Complete your profile to get noticed.',
+    link: '/settings/profile',
+  }).catch(() => {});
 
   const accessToken = await startSession(req, res, user);
   res

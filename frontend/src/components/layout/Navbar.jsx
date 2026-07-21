@@ -6,6 +6,7 @@ import { conversationApi } from '@/api/conversationApi';
 import { cn } from '@/utils/cn';
 import Logo from './Logo';
 import UserMenu from './UserMenu';
+import NotificationBell from './NotificationBell';
 
 // Primary nav links.
 const NAV_LINKS = [{ label: 'Browse', to: '/browse' }];
@@ -75,6 +76,7 @@ export default function Navbar() {
         <div className="flex items-center gap-2">
           {isLoading ? null : isAuthenticated ? (
             <>
+              <NotificationBell />
               <MessagesLink />
               <Link to="/posts/new" className="hidden sm:block">
                 <Button size="sm">+ Create</Button>

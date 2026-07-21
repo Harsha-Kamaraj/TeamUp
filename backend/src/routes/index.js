@@ -6,6 +6,7 @@ import postRoutes from './post.routes.js';
 import interestRoutes from './interest.routes.js';
 import conversationRoutes from './conversation.routes.js';
 import dashboardRoutes from './dashboard.routes.js';
+import notificationRoutes from './notification.routes.js';
 
 /**
  * API router — the single mount point for every feature area.
@@ -22,5 +23,6 @@ router.use('/posts', postRoutes);
 router.use('/interests', interestRoutes);
 router.use('/conversations', conversationRoutes);
 router.use('/dashboard', dashboardRoutes);
+router.use('/notifications', notificationRoutes);
 
 export default router;

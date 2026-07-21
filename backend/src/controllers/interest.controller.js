@@ -5,6 +5,7 @@ import ApiError from '../utils/ApiError.js';
 import ApiResponse from '../utils/ApiResponse.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import { sendInterestEmail } from '../services/email.service.js';
+import { notifyInterest } from '../services/notification.service.js';
 
 const INTERESTED_USER_FIELDS = 'name avatar college department year skills';
 
@@ -32,6 +33,9 @@ export const expressInterest = asyncHandler(async (req, res) => {
     toUser: post.author,
     message: req.body.message,
   });
+
+  // In-app notification (real-time) for the author.
+  await notifyInterest({ authorId: post.author, fromUser: req.user, post }).catch(() => {});
 
   // Notify the author (real email if SMTP is configured, else console in dev).
   const author = await User.findById(post.author);

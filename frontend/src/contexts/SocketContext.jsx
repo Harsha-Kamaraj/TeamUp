@@ -40,6 +40,14 @@ export function SocketProvider({ children }) {
     s.on('message:new', refreshConversations);
     s.on('conversation:read', refreshConversations);
 
+    // Keep the notification bell (and dashboard stats) in sync in real time.
+    const refreshNotifications = () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
+    };
+    s.on('notification:new', refreshNotifications);
+    s.on('notifications:updated', refreshNotifications);
+
     setSocket(s);
 
     return () => {
