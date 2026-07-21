@@ -85,3 +85,20 @@ export async function sendPasswordResetEmail(user, rawToken) {
            <p>This link expires in ${env.auth.emailTokenExpiresMinutes} minutes.</p>`,
   });
 }
+
+/** Notify a post's author that someone expressed interest in it. */
+export async function sendInterestEmail(author, fromUser, post, message = '') {
+  const url = `${clientBaseUrl}/posts/${post.id}`;
+  const noteText = message ? `\n\nTheir note: "${message}"` : '';
+  const noteHtml = message ? `<p><em>Their note:</em> "${message}"</p>` : '';
+
+  return sendEmail({
+    to: author.email,
+    subject: `${fromUser.name} is interested in "${post.title}"`,
+    text: `Hi ${author.name},\n\n${fromUser.name} is interested in your opportunity "${post.title}".${noteText}\n\nView it here:\n${url}`,
+    html: `<p>Hi ${author.name},</p>
+           <p><strong>${fromUser.name}</strong> is interested in your opportunity <strong>"${post.title}"</strong>.</p>
+           ${noteHtml}
+           <p><a href="${url}">View the opportunity</a></p>`,
+  });
+}

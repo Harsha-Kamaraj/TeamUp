@@ -38,6 +38,28 @@ export const protect = asyncHandler(async (req, _res, next) => {
 });
 
 /**
+ * optionalAuth — attaches `req.user` if a valid access token is present, but
+ * never blocks the request. Used on public endpoints that personalize their
+ * response for logged-in users (e.g. "have I already expressed interest?").
+ */
+export const optionalAuth = asyncHandler(async (req, _res, next) => {
+  const header = req.headers.authorization || '';
+  const token = header.startsWith('Bearer ') ? header.slice(7).trim() : null;
+  if (!token) return next();
+
+  try {
+    const payload = verifyAccessToken(token);
+    if (payload.type === 'access') {
+      const user = await User.findById(payload.sub);
+      if (user && !user.passwordChangedAfter(payload.iat)) req.user = user;
+    }
+  } catch {
+    // Invalid/expired token → just treat as a guest.
+  }
+  next();
+});
+
+/**
  * requireVerified — use after `protect` to block users who haven't confirmed
  * their email yet (applied to sensitive actions in later phases).
  */

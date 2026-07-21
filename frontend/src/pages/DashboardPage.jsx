@@ -76,6 +76,11 @@ export default function DashboardPage() {
             My opportunities
           </Button>
         </Link>
+        <Link to="/my-interests">
+          <Button size="lg" variant="outline">
+            My interests
+          </Button>
+        </Link>
       </div>
 
       {user && !user.isEmailVerified && (

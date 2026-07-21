@@ -3,6 +3,7 @@ import healthRoutes from './health.routes.js';
 import authRoutes from './auth.routes.js';
 import userRoutes from './user.routes.js';
 import postRoutes from './post.routes.js';
+import interestRoutes from './interest.routes.js';
 
 /**
  * API router — the single mount point for every feature area.
@@ -16,5 +17,6 @@ router.use('/health', healthRoutes);
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/posts', postRoutes);
+router.use('/interests', interestRoutes);
 
 export default router;

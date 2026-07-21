@@ -1,4 +1,5 @@
 import Post, { POST_TYPES, POST_MODES } from '../models/Post.js';
+import Interest from '../models/Interest.js';
 import ApiError from '../utils/ApiError.js';
 import ApiResponse from '../utils/ApiResponse.js';
 import asyncHandler from '../utils/asyncHandler.js';
@@ -80,13 +81,23 @@ export const getMyPosts = asyncHandler(async (req, res) => {
 });
 
 /**
- * GET /posts/:id
- * Fetch a single opportunity by id.
+ * GET /posts/:id   (optionally authenticated)
+ * Fetch a single opportunity. Adds `interestCount`, and for a logged-in
+ * viewer, `hasExpressedInterest` (so the UI shows the right button state).
  */
 export const getPostById = asyncHandler(async (req, res) => {
   const post = await Post.findById(req.params.id).populate('author', AUTHOR_FIELDS);
   if (!post) throw ApiError.notFound('Opportunity not found');
-  res.json(new ApiResponse(200, { post }, 'Opportunity loaded'));
+
+  const interestCount = await Interest.countDocuments({ post: post.id });
+  let hasExpressedInterest = false;
+  if (req.user) {
+    hasExpressedInterest = Boolean(await Interest.exists({ post: post.id, fromUser: req.user.id }));
+  }
+
+  res.json(
+    new ApiResponse(200, { post: { ...post.toJSON(), interestCount, hasExpressedInterest } }, 'Opportunity loaded')
+  );
 });
 
 // Load a post and ensure the current user owns it (for edit/delete).

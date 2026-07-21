@@ -1,9 +1,11 @@
 import { Router } from 'express';
 
 import * as postController from '../controllers/post.controller.js';
+import * as interestController from '../controllers/interest.controller.js';
 import validate from '../middleware/validate.js';
-import { protect } from '../middleware/auth.middleware.js';
+import { protect, optionalAuth } from '../middleware/auth.middleware.js';
 import { createPostSchema, updatePostSchema } from '../validators/post.validators.js';
+import { expressInterestSchema } from '../validators/interest.validators.js';
 
 const router = Router();
 
@@ -13,11 +15,17 @@ router.get('/', postController.listPosts); // feed
 // "/me" must be declared before "/:id" so it isn't treated as an id.
 router.get('/me', protect, postController.getMyPosts); // authenticated
 
-router.get('/:id', postController.getPostById); // public single view
+// optionalAuth so the response can note "have I expressed interest?".
+router.get('/:id', optionalAuth, postController.getPostById);
 
 // ── Authenticated (create / manage own) ───────────────────────────────────
 router.post('/', protect, validate(createPostSchema), postController.createPost);
 router.patch('/:id', protect, validate(updatePostSchema), postController.updatePost);
 router.delete('/:id', protect, postController.deletePost);
+
+// ── Interest workflow ─────────────────────────────────────────────────────
+router.post('/:id/interest', protect, validate(expressInterestSchema), interestController.expressInterest);
+router.delete('/:id/interest', protect, interestController.withdrawInterest);
+router.get('/:id/interests', protect, interestController.getPostInterests); // author only
 
 export default router;

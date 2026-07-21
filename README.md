@@ -2,7 +2,7 @@
 
 A student collaboration platform where students can find teammates for hackathons, research, startups, projects, and competitions.
 
-**Status:** 🚧 Under Development — completed **Phase 8: Search & Filters**
+**Status:** 🚧 Under Development — completed **Phase 9: Interested Workflow & Email**
 
 ---
 
@@ -86,8 +86,8 @@ npm run dev
 5. ✅ **Student Profile**
 6. ✅ **Post Creation**
 7. ✅ **Post Feed**
-8. ✅ **Search & Filters** ← *you are here*
-9. Interested Workflow & Email
+8. ✅ **Search & Filters**
+9. ✅ **Interested Workflow & Email** ← *you are here*
 10. Real-time Chat
 11. Dashboard
 12. Notifications
