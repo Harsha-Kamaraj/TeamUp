@@ -8,7 +8,6 @@ import { getErrorMessage } from '@/utils/getErrorMessage';
 // Sections that get built out in later phases.
 const UPCOMING = [
   { icon: '⭐', title: 'Saved Posts', body: 'Bookmarked opportunities — Phase 13.' },
-  { icon: '💬', title: 'Chats', body: 'Conversations with teammates — Phase 10.' },
   { icon: '🔔', title: 'Notifications', body: 'Interest & message alerts — Phase 12.' },
 ];
 
@@ -79,6 +78,11 @@ export default function DashboardPage() {
         <Link to="/my-interests">
           <Button size="lg" variant="outline">
             My interests
+          </Button>
+        </Link>
+        <Link to="/chat">
+          <Button size="lg" variant="outline">
+            Messages
           </Button>
         </Link>
       </div>

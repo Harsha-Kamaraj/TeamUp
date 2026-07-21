@@ -5,6 +5,7 @@ import { postApi } from '@/api/postApi';
 import { interestApi } from '@/api/interestApi';
 import { useAuth } from '@/contexts/AuthContext';
 import { Alert, Avatar, Badge, Button, Card, Container, Spinner, Textarea } from '@/components/ui';
+import MessageButton from '@/components/chat/MessageButton';
 import { POST_TYPE_MAP, POST_MODE_MAP } from '@/lib/postOptions';
 import { getErrorMessage } from '@/utils/getErrorMessage';
 
@@ -58,9 +59,12 @@ function InterestedStudents({ postId }) {
                   </p>
                 )}
               </div>
-              <Button variant="outline" size="sm" disabled title="Chat arrives in Phase 10">
-                Message
-              </Button>
+              <MessageButton
+                userId={interest.fromUser?.id}
+                postId={postId}
+                variant="outline"
+                size="sm"
+              />
             </li>
           ))}
         </ul>

@@ -6,9 +6,8 @@
  *   2. Start the HTTP server.
  *   3. Handle graceful shutdown and last-resort crash safety.
  *
- * (In Phase 10 we'll wrap this HTTP server with Socket.IO for realtime chat —
- * which is exactly why the server is created explicitly with `http.createServer`
- * rather than `app.listen`.)
+ * The HTTP server is created explicitly with `http.createServer` (rather than
+ * `app.listen`) so Socket.IO can attach to it for realtime chat.
  */
 import http from 'node:http';
 
@@ -16,8 +15,12 @@ import app from './app.js';
 import env from './config/env.js';
 import logger from './utils/logger.js';
 import { connectDatabase, disconnectDatabase } from './config/database.js';
+import { initSocket } from './sockets/index.js';
 
 const server = http.createServer(app);
+
+// Attach Socket.IO (realtime chat) to the same HTTP server.
+initSocket(server);
 
 async function start() {
   // Try the DB first (won't crash in dev if it's not configured yet).

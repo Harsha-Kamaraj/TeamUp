@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { userApi } from '@/api/userApi';
 import { useAuth } from '@/contexts/AuthContext';
 import { Alert, Avatar, Badge, Button, Card, Container, Spinner } from '@/components/ui';
+import MessageButton from '@/components/chat/MessageButton';
 import { AVAILABILITY, WORK_MODE } from '@/lib/profileOptions';
 
 const LINK_META = {
@@ -94,12 +95,14 @@ export default function ProfilePage() {
             )}
           </div>
 
-          {isOwnProfile && (
+          {isOwnProfile ? (
             <Link to="/settings/profile">
               <Button variant="secondary" size="sm">
                 Edit profile
               </Button>
             </Link>
+          ) : (
+            me && <MessageButton userId={user.id} variant="secondary" size="sm" />
           )}
         </div>
       </Card>

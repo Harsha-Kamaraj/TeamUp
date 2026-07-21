@@ -8,6 +8,7 @@ import NotFoundPage from '@/pages/NotFoundPage';
 import BrowsePage from '@/pages/BrowsePage';
 import DashboardPage from '@/pages/DashboardPage';
 import MyInterestsPage from '@/pages/MyInterestsPage';
+import ChatPage from '@/pages/ChatPage';
 import ProfilePage from '@/pages/ProfilePage';
 import EditProfilePage from '@/pages/EditProfilePage';
 import CreatePostPage from '@/pages/posts/CreatePostPage';
@@ -52,6 +53,8 @@ export default function AppRoutes() {
           <Route path="settings/profile" element={<EditProfilePage />} />
           <Route path="my-posts" element={<MyPostsPage />} />
           <Route path="my-interests" element={<MyInterestsPage />} />
+          <Route path="chat" element={<ChatPage />} />
+          <Route path="chat/:conversationId" element={<ChatPage />} />
           <Route path="posts/new" element={<CreatePostPage />} />
           <Route path="posts/:id/edit" element={<EditPostPage />} />
         </Route>

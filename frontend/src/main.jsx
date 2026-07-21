@@ -7,19 +7,23 @@ import './index.css';
 import App from './App.jsx';
 import { queryClient } from '@/lib/queryClient';
 import { AuthProvider } from '@/contexts/AuthContext';
+import { SocketProvider } from '@/contexts/SocketContext';
 
 /**
  * App entry. Providers are composed here (outermost → innermost):
  *   QueryClientProvider → server-state caching (TanStack Query)
  *   BrowserRouter       → client-side routing
- *   AuthProvider        → current user + auth actions (uses router + query)
+ *   AuthProvider        → current user + auth actions
+ *   SocketProvider      → realtime chat connection (uses auth + query)
  */
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <AuthProvider>
-          <App />
+          <SocketProvider>
+            <App />
+          </SocketProvider>
         </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>
