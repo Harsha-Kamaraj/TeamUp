@@ -8,15 +8,12 @@ import { updateProfileSchema } from '../validators/user.validators.js';
 
 const router = Router();
 
-// Everything here requires a logged-in user.
-router.use(protect);
+// ── Authenticated: manage the current user's own profile ──────────────────
+router.patch('/me', protect, validate(updateProfileSchema), userController.updateMyProfile);
+router.post('/me/avatar', protect, uploadAvatar, userController.uploadMyAvatar);
+router.delete('/me/avatar', protect, userController.removeMyAvatar);
 
-// Current user's profile management.
-router.patch('/me', validate(updateProfileSchema), userController.updateMyProfile);
-router.post('/me/avatar', uploadAvatar, userController.uploadMyAvatar);
-router.delete('/me/avatar', userController.removeMyAvatar);
-
-// View another user's public profile. Keep last so it doesn't shadow /me.
+// ── Public: view a profile (email/last-login hidden in the controller) ────
 router.get('/:id', userController.getProfileById);
 
 export default router;

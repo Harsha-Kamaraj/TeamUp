@@ -11,6 +11,7 @@ export default function CreatePostPage() {
   const onSubmit = async (values) => {
     const post = await postApi.create(values);
     queryClient.invalidateQueries({ queryKey: ['my-posts'] });
+    queryClient.invalidateQueries({ queryKey: ['posts-feed'] });
     navigate(`/posts/${post.id}`);
   };
 

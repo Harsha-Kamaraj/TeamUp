@@ -7,16 +7,17 @@ import { createPostSchema, updatePostSchema } from '../validators/post.validator
 
 const router = Router();
 
-// All post routes require a logged-in user.
-router.use(protect);
-
-router.post('/', validate(createPostSchema), postController.createPost);
+// ── Public (read-only browsing) ───────────────────────────────────────────
+router.get('/', postController.listPosts); // feed
 
 // "/me" must be declared before "/:id" so it isn't treated as an id.
-router.get('/me', postController.getMyPosts);
+router.get('/me', protect, postController.getMyPosts); // authenticated
 
-router.get('/:id', postController.getPostById);
-router.patch('/:id', validate(updatePostSchema), postController.updatePost);
-router.delete('/:id', postController.deletePost);
+router.get('/:id', postController.getPostById); // public single view
+
+// ── Authenticated (create / manage own) ───────────────────────────────────
+router.post('/', protect, validate(createPostSchema), postController.createPost);
+router.patch('/:id', protect, validate(updatePostSchema), postController.updatePost);
+router.delete('/:id', protect, postController.deletePost);
 
 export default router;

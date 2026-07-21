@@ -65,6 +65,7 @@ export default function EditPostPage() {
     // Refresh caches so the detail + list pages show the new data immediately.
     queryClient.setQueryData(['post', id], updated);
     queryClient.invalidateQueries({ queryKey: ['my-posts'] });
+    queryClient.invalidateQueries({ queryKey: ['posts-feed'] });
     navigate(`/posts/${id}`);
   };
 

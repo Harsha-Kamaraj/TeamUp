@@ -7,6 +7,37 @@ import asyncHandler from '../utils/asyncHandler.js';
 const AUTHOR_FIELDS = 'name avatar college department';
 
 /**
+ * GET /posts   (public)
+ * Paginated feed of open opportunities, newest first.
+ * Query: page (default 1), limit (default 12, max 50).
+ * Phase 8 extends the filter with search/category/skill params.
+ */
+export const listPosts = asyncHandler(async (req, res) => {
+  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+  const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 12));
+
+  const filter = { status: 'open' };
+
+  const [posts, total] = await Promise.all([
+    Post.find(filter)
+      .sort({ createdAt: -1 })
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .populate('author', AUTHOR_FIELDS),
+    Post.countDocuments(filter),
+  ]);
+
+  const totalPages = Math.ceil(total / limit) || 1;
+  res.json(
+    new ApiResponse(
+      200,
+      { posts, pagination: { page, limit, total, totalPages, hasMore: page < totalPages } },
+      'Opportunities'
+    )
+  );
+});
+
+/**
  * POST /posts
  * Create a new opportunity owned by the current user.
  */

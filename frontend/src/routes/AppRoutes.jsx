@@ -5,6 +5,7 @@ import GuestRoute from './GuestRoute';
 
 import HomePage from '@/pages/HomePage';
 import NotFoundPage from '@/pages/NotFoundPage';
+import BrowsePage from '@/pages/BrowsePage';
 import DashboardPage from '@/pages/DashboardPage';
 import ProfilePage from '@/pages/ProfilePage';
 import EditProfilePage from '@/pages/EditProfilePage';
@@ -38,17 +39,18 @@ export default function AppRoutes() {
           <Route path="reset-password" element={<ResetPasswordPage />} />
         </Route>
 
-        {/* Public (opened from an email link) */}
+        {/* Public read-only: browse the feed, view posts + profiles, verify email */}
+        <Route path="browse" element={<BrowsePage />} />
+        <Route path="posts/:id" element={<PostDetailPage />} />
+        <Route path="profile/:id" element={<ProfilePage />} />
         <Route path="verify-email" element={<VerifyEmailPage />} />
 
         {/* Authenticated only */}
         <Route element={<ProtectedRoute />}>
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="settings/profile" element={<EditProfilePage />} />
-          <Route path="profile/:id" element={<ProfilePage />} />
           <Route path="my-posts" element={<MyPostsPage />} />
           <Route path="posts/new" element={<CreatePostPage />} />
-          <Route path="posts/:id" element={<PostDetailPage />} />
           <Route path="posts/:id/edit" element={<EditPostPage />} />
         </Route>
 

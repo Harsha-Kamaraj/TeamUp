@@ -5,11 +5,8 @@ import { cn } from '@/utils/cn';
 import Logo from './Logo';
 import UserMenu from './UserMenu';
 
-// Primary nav links. (Destinations are built out in later phases.)
-const NAV_LINKS = [
-  { label: 'Browse', to: '/browse' },
-  { label: 'How it works', to: '/how-it-works' },
-];
+// Primary nav links.
+const NAV_LINKS = [{ label: 'Browse', to: '/browse' }];
 
 export default function Navbar() {
   const { isAuthenticated, isLoading, user, logout } = useAuth();

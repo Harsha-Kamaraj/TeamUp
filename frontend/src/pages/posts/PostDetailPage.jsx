@@ -56,6 +56,7 @@ export default function PostDetailPage() {
       await postApi.remove(id);
       queryClient.removeQueries({ queryKey: ['post', id] });
       queryClient.invalidateQueries({ queryKey: ['my-posts'] });
+      queryClient.invalidateQueries({ queryKey: ['posts-feed'] });
       navigate('/my-posts', { replace: true });
     } finally {
       setDeleting(false);
