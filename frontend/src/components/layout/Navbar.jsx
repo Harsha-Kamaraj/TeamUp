@@ -46,7 +46,12 @@ export default function Navbar() {
             avoid a flash of the wrong state. */}
         <div className="flex items-center gap-2">
           {isLoading ? null : isAuthenticated ? (
-            <UserMenu user={user} onLogout={handleLogout} />
+            <>
+              <Link to="/posts/new" className="hidden sm:block">
+                <Button size="sm">+ Create</Button>
+              </Link>
+              <UserMenu user={user} onLogout={handleLogout} />
+            </>
           ) : (
             <>
               <Link to="/login">

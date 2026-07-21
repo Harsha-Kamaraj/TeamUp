@@ -7,7 +7,6 @@ import { getErrorMessage } from '@/utils/getErrorMessage';
 
 // Sections that get built out in later phases.
 const UPCOMING = [
-  { icon: '📝', title: 'My Posts', body: 'Opportunities you created — Phase 6.' },
   { icon: '⭐', title: 'Saved Posts', body: 'Bookmarked opportunities — Phase 13.' },
   { icon: '💬', title: 'Chats', body: 'Conversations with teammates — Phase 10.' },
   { icon: '🔔', title: 'Notifications', body: 'Interest & message alerts — Phase 12.' },
@@ -65,6 +64,18 @@ export default function DashboardPage() {
           Welcome{user?.name ? `, ${user.name.split(' ')[0]}` : ''} 👋
         </h1>
         <p className="mt-1 text-slate-500">Here&apos;s your TeamUp home base.</p>
+      </div>
+
+      {/* Quick actions */}
+      <div className="mb-8 flex flex-wrap gap-3">
+        <Link to="/posts/new">
+          <Button size="lg">+ Create an opportunity</Button>
+        </Link>
+        <Link to="/my-posts">
+          <Button size="lg" variant="outline">
+            My opportunities
+          </Button>
+        </Link>
       </div>
 
       {user && !user.isEmailVerified && (

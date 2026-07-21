@@ -8,6 +8,10 @@ import NotFoundPage from '@/pages/NotFoundPage';
 import DashboardPage from '@/pages/DashboardPage';
 import ProfilePage from '@/pages/ProfilePage';
 import EditProfilePage from '@/pages/EditProfilePage';
+import CreatePostPage from '@/pages/posts/CreatePostPage';
+import EditPostPage from '@/pages/posts/EditPostPage';
+import PostDetailPage from '@/pages/posts/PostDetailPage';
+import MyPostsPage from '@/pages/posts/MyPostsPage';
 import LoginPage from '@/pages/auth/LoginPage';
 import RegisterPage from '@/pages/auth/RegisterPage';
 import ForgotPasswordPage from '@/pages/auth/ForgotPasswordPage';
@@ -42,6 +46,10 @@ export default function AppRoutes() {
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="settings/profile" element={<EditProfilePage />} />
           <Route path="profile/:id" element={<ProfilePage />} />
+          <Route path="my-posts" element={<MyPostsPage />} />
+          <Route path="posts/new" element={<CreatePostPage />} />
+          <Route path="posts/:id" element={<PostDetailPage />} />
+          <Route path="posts/:id/edit" element={<EditPostPage />} />
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />
