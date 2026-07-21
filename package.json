@@ -1,0 +1,20 @@
+{
+  "name": "teamup",
+  "version": "0.1.0",
+  "private": true,
+  "description": "TeamUp — a student collaboration platform to find teammates for hackathons, research, startups, competitions, and open-source projects.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "concurrently -n backend,frontend -c blue,magenta \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "install:all": "npm install && npm --prefix backend install && npm --prefix frontend install",
+    "start:backend": "npm --prefix backend start"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
