@@ -6,18 +6,21 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import './index.css';
 import App from './App.jsx';
 import { queryClient } from '@/lib/queryClient';
+import { AuthProvider } from '@/contexts/AuthContext';
 
 /**
  * App entry. Providers are composed here (outermost → innermost):
  *   QueryClientProvider → server-state caching (TanStack Query)
  *   BrowserRouter       → client-side routing
- * The AuthProvider will be added here in Phase 4.
+ *   AuthProvider        → current user + auth actions (uses router + query)
  */
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <App />
+        <AuthProvider>
+          <App />
+        </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>
   </StrictMode>

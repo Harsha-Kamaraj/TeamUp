@@ -1,0 +1,98 @@
+import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { cn } from '@/utils/cn';
+
+function initialsOf(name = '') {
+  return name
+    .trim()
+    .split(/\s+/)
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+}
+
+/**
+ * UserMenu — avatar button that opens a dropdown with the user's identity,
+ * a link to the dashboard, and a logout action. Closes on outside-click / Esc.
+ */
+export default function UserMenu({ user, onLogout }) {
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+
+    const handleClick = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) setOpen(false);
+    };
+    const handleKey = (e) => {
+      if (e.key === 'Escape') setOpen(false);
+    };
+
+    document.addEventListener('mousedown', handleClick);
+    document.addEventListener('keydown', handleKey);
+    return () => {
+      document.removeEventListener('mousedown', handleClick);
+      document.removeEventListener('keydown', handleKey);
+    };
+  }, [open]);
+
+  return (
+    <div className="relative" ref={menuRef}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-haspopup="menu"
+        aria-expanded={open}
+        className="flex items-center gap-2 rounded-full p-0.5 pr-2 transition-colors hover:bg-slate-100"
+      >
+        <span className="grid h-9 w-9 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-brand-500 to-violet-500 text-sm font-bold text-white">
+          {user.avatar ? (
+            <img src={user.avatar} alt="" className="h-full w-full object-cover" />
+          ) : (
+            initialsOf(user.name)
+          )}
+        </span>
+        <span className="hidden max-w-[8rem] truncate text-sm font-medium text-slate-700 sm:block">
+          {user.name?.split(' ')[0]}
+        </span>
+      </button>
+
+      {open && (
+        <div
+          role="menu"
+          className="absolute right-0 mt-2 w-56 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-soft"
+        >
+          <div className="border-b border-slate-100 px-4 py-3">
+            <p className="truncate text-sm font-semibold text-slate-900">{user.name}</p>
+            <p className="truncate text-xs text-slate-500">{user.email}</p>
+          </div>
+
+          <Link
+            to="/dashboard"
+            role="menuitem"
+            onClick={() => setOpen(false)}
+            className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50"
+          >
+            Dashboard
+          </Link>
+
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              setOpen(false);
+              onLogout();
+            }}
+            className={cn(
+              'block w-full px-4 py-2.5 text-left text-sm font-medium text-red-600 hover:bg-red-50'
+            )}
+          >
+            Log out
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}

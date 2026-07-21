@@ -1,7 +1,9 @@
-import { Link, NavLink } from 'react-router-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { Button, Container } from '@/components/ui';
+import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/utils/cn';
 import Logo from './Logo';
+import UserMenu from './UserMenu';
 
 // Primary nav links. (Destinations are built out in later phases.)
 const NAV_LINKS = [
@@ -10,6 +12,14 @@ const NAV_LINKS = [
 ];
 
 export default function Navbar() {
+  const { isAuthenticated, isLoading, user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+  };
+
   return (
     <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/80 backdrop-blur">
       <Container className="flex h-16 items-center justify-between gap-4">
@@ -32,15 +42,23 @@ export default function Navbar() {
           ))}
         </nav>
 
+        {/* Auth-aware actions. Render nothing while the session is resolving to
+            avoid a flash of the wrong state. */}
         <div className="flex items-center gap-2">
-          <Link to="/login">
-            <Button variant="ghost" size="sm">
-              Log in
-            </Button>
-          </Link>
-          <Link to="/register">
-            <Button size="sm">Sign up</Button>
-          </Link>
+          {isLoading ? null : isAuthenticated ? (
+            <UserMenu user={user} onLogout={handleLogout} />
+          ) : (
+            <>
+              <Link to="/login">
+                <Button variant="ghost" size="sm">
+                  Log in
+                </Button>
+              </Link>
+              <Link to="/register">
+                <Button size="sm">Sign up</Button>
+              </Link>
+            </>
+          )}
         </div>
       </Container>
     </header>
