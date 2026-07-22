@@ -62,3 +62,15 @@ export async function markConversationNotificationsRead({ userId, conversationId
 export async function notifySystem({ userId, text, link = '' }) {
   return createNotification({ user: userId, type: 'system', text, link });
 }
+
+/** Tell a student they were accepted onto a post's team. */
+export async function notifyAccepted({ userId, actor, post }) {
+  return createNotification({
+    user: userId,
+    type: 'team',
+    actor: actor?.id,
+    post: post.id,
+    text: `You've been accepted to "${post.title}" 🎉`,
+    link: `/posts/${post.id}`,
+  });
+}

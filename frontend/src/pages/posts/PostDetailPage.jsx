@@ -7,24 +7,46 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Alert, Avatar, Badge, Button, Card, Container, Spinner, Textarea } from '@/components/ui';
 import MessageButton from '@/components/chat/MessageButton';
 import BookmarkButton from '@/components/posts/BookmarkButton';
+import TeamPanel from '@/components/posts/TeamPanel';
 import { POST_TYPE_MAP, POST_MODE_MAP } from '@/lib/postOptions';
 import { getErrorMessage } from '@/utils/getErrorMessage';
 
 const formatDate = (d) =>
   d ? new Date(d).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) : null;
 
-/** Author-only list of students who expressed interest. */
+/** Author-only list of students who expressed interest, with accept/reject. */
 function InterestedStudents({ postId }) {
+  const queryClient = useQueryClient();
+  const [error, setError] = useState('');
   const { data: interests, isLoading } = useQuery({
     queryKey: ['post-interests', postId],
     queryFn: () => interestApi.forPost(postId),
   });
+
+  const respond = useMutation({
+    mutationFn: ({ interestId, status }) => interestApi.respond(postId, interestId, status),
+    onSuccess: () => {
+      setError('');
+      queryClient.invalidateQueries({ queryKey: ['post-interests', postId] });
+      queryClient.invalidateQueries({ queryKey: ['team', postId] });
+      queryClient.invalidateQueries({ queryKey: ['post', postId] });
+    },
+    onError: (err) => setError(getErrorMessage(err)),
+  });
+  const pendingFor = (id, status) =>
+    respond.isPending && respond.variables?.interestId === id && respond.variables?.status === status;
 
   return (
     <Card className="mt-6">
       <h2 className="text-sm font-semibold tracking-wide text-slate-500 uppercase">
         Interested students{interests ? ` (${interests.length})` : ''}
       </h2>
+
+      {error && (
+        <div className="mt-3">
+          <Alert variant="error">{error}</Alert>
+        </div>
+      )}
 
       {isLoading ? (
         <div className="py-6 text-center text-brand-600">
@@ -43,6 +65,8 @@ function InterestedStudents({ postId }) {
                   >
                     {interest.fromUser?.name}
                   </Link>
+                  {interest.status === 'accepted' && <Badge variant="green">On the team</Badge>}
+                  {interest.status === 'rejected' && <Badge variant="slate">Declined</Badge>}
                   <span className="text-xs text-slate-500">
                     {[interest.fromUser?.college, interest.fromUser?.year].filter(Boolean).join(' · ')}
                   </span>
@@ -59,13 +83,29 @@ function InterestedStudents({ postId }) {
                     “{interest.message}”
                   </p>
                 )}
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  {interest.status === 'pending' && (
+                    <>
+                      <Button
+                        size="sm"
+                        loading={pendingFor(interest.id, 'accepted')}
+                        onClick={() => respond.mutate({ interestId: interest.id, status: 'accepted' })}
+                      >
+                        Accept
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        loading={pendingFor(interest.id, 'rejected')}
+                        onClick={() => respond.mutate({ interestId: interest.id, status: 'rejected' })}
+                      >
+                        Reject
+                      </Button>
+                    </>
+                  )}
+                  <MessageButton userId={interest.fromUser?.id} postId={postId} variant="outline" size="sm" />
+                </div>
               </div>
-              <MessageButton
-                userId={interest.fromUser?.id}
-                postId={postId}
-                variant="outline"
-                size="sm"
-              />
             </li>
           ))}
         </ul>
@@ -288,7 +328,10 @@ export default function PostDetailPage() {
         </div>
       </Card>
 
-      {/* Author-only: who's interested */}
+      {/* Team roster + progress + missing skills (everyone) */}
+      <TeamPanel postId={id} />
+
+      {/* Author-only: who's interested (accept/reject) */}
       {isOwner && <InterestedStudents postId={id} />}
     </Container>
   );

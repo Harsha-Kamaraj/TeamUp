@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const { Schema, model } = mongoose;
 
-export const NOTIFICATION_TYPES = ['interest', 'message', 'system'];
+export const NOTIFICATION_TYPES = ['interest', 'message', 'system', 'team'];
 
 /**
  * Notification = an alert for a user (someone interested in your post, a new

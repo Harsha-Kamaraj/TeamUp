@@ -21,4 +21,7 @@ export const postApi = {
   remove: (id) => apiClient.delete(`/posts/${id}`).then((r) => r.data),
 
   getMine: () => apiClient.get('/posts/me').then((r) => r.data.data.posts),
+
+  // Team roster + count/needed + missing skills.
+  getTeam: (id) => apiClient.get(`/posts/${id}/team`).then((r) => r.data.data),
 };

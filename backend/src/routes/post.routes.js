@@ -29,6 +29,10 @@ router.post('/:id/interest', protect, validate(expressInterestSchema), interestC
 router.delete('/:id/interest', protect, interestController.withdrawInterest);
 router.get('/:id/interests', protect, interestController.getPostInterests); // author only
 
+// ── Team management ───────────────────────────────────────────────────────
+router.get('/:id/team', interestController.getPostTeam); // public
+router.patch('/:postId/interests/:interestId', protect, interestController.respondToInterest); // author
+
 // ── Bookmarks ─────────────────────────────────────────────────────────────
 router.post('/:id/bookmark', protect, bookmarkController.addBookmark);
 router.delete('/:id/bookmark', protect, bookmarkController.removeBookmark);

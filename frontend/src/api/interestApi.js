@@ -10,6 +10,12 @@ export const interestApi = {
   // Author-only: who's interested in a given post.
   forPost: (postId) => apiClient.get(`/posts/${postId}/interests`).then((r) => r.data.data.interests),
 
+  // Author-only: accept/reject an interested student.
+  respond: (postId, interestId, status) =>
+    apiClient
+      .patch(`/posts/${postId}/interests/${interestId}`, { status })
+      .then((r) => r.data.data.interest),
+
   // The current user's own interests.
   mine: () => apiClient.get('/interests/mine').then((r) => r.data.data.interests),
 };
