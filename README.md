@@ -1,8 +1,10 @@
-# TeamUp
+# Squadly
 
-A student collaboration platform where students can find teammates for hackathons, research, startups, projects, and competitions.
+A student collaboration platform where students find their squad for hackathons, research, startups, competitions, fests, and any other event.
 
-**Status:** 🚧 Under Development — completed **Phase 14: Team Management**
+**Status:** ✅ Feature-complete & deployment-ready — completed **Phase 15: Deployment & Optimization**
+
+See **[DEPLOYMENT.md](DEPLOYMENT.md)** for the full step-by-step deploy guide (Vercel + Render + Atlas + Cloudinary + Brevo).
 
 ---
 
@@ -24,7 +26,7 @@ A student collaboration platform where students can find teammates for hackathon
 This is a **monorepo** with two independent, separately deployable apps:
 
 ```
-TeamUp/
+Squadly/
 ├── backend/            # Express + Mongoose API (deploys to Render)
 │   └── src/
 │       ├── config/         # Env loading & DB connection
@@ -92,5 +94,5 @@ npm run dev
 11. ✅ **Dashboard**
 12. ✅ **Notifications**
 13. ✅ **Bookmarks**
-14. ✅ **Team Management** ← *you are here*
-15. Deployment & Optimization
+14. ✅ **Team Management**
+15. ✅ **Deployment & Optimization** ← *you are here*

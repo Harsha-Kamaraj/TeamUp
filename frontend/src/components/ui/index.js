@@ -4,6 +4,7 @@ export { default as Card } from './Card';
 export { default as Spinner } from './Spinner';
 export { default as Container } from './Container';
 export { default as Alert } from './Alert';
+export { default as EmptyState } from './EmptyState';
 export { default as Textarea } from './Textarea';
 export { default as Select } from './Select';
 export { default as Badge } from './Badge';

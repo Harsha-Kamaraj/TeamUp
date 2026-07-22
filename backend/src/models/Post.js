@@ -11,6 +11,9 @@ export const POST_TYPES = [
   'open-source',
   'club',
   'project',
+  // "other" lets students post any event we don't list (e.g. a DJ Nite, a
+  // fest, a study group). The free-text label lives in `customType`.
+  'other',
 ];
 export const POST_MODES = ['remote', 'offline', 'hybrid'];
 export const POST_STATUSES = ['open', 'closed'];
@@ -32,6 +35,8 @@ const postSchema = new Schema(
       enum: POST_TYPES,
       required: [true, 'Opportunity type is required'],
     },
+    // Free-text label shown when type === 'other' (e.g. "DJ Nite").
+    customType: { type: String, trim: true, maxlength: 40, default: '' },
     title: {
       type: String,
       required: [true, 'Title is required'],
@@ -72,6 +77,11 @@ const postSchema = new Schema(
     },
   }
 );
+
+// Keep customType meaningful only for the "other" type.
+postSchema.pre('save', function normalizeCustomType() {
+  if (this.type !== 'other') this.customType = '';
+});
 
 // Common access patterns: newest-first feeds, filtered by status/type/mode.
 postSchema.index({ status: 1, createdAt: -1 });

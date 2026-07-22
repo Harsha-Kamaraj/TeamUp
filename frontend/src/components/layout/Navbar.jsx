@@ -1,5 +1,6 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { MessageSquare, Plus } from 'lucide-react';
 import { Button, Container } from '@/components/ui';
 import { useAuth } from '@/contexts/AuthContext';
 import { conversationApi } from '@/api/conversationApi';
@@ -9,7 +10,7 @@ import UserMenu from './UserMenu';
 import NotificationBell from './NotificationBell';
 
 // Primary nav links.
-const NAV_LINKS = [{ label: 'Browse', to: '/browse' }];
+const NAV_LINKS = [{ label: 'Your Feed', to: '/browse' }];
 
 /** Messages link with a live unread badge. */
 function MessagesLink() {
@@ -24,15 +25,15 @@ function MessagesLink() {
       to="/chat"
       className={({ isActive }) =>
         cn(
-          'relative rounded-lg px-2.5 py-2 text-sm font-medium transition-colors',
-          isActive ? 'text-brand-700' : 'text-slate-600 hover:text-slate-900'
+          'relative rounded-lg p-2 transition-colors',
+          isActive ? 'bg-brand-50 text-brand-700' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
         )
       }
       aria-label="Messages"
     >
-      <span className="text-lg" aria-hidden>💬</span>
+      <MessageSquare className="h-5 w-5" />
       {unread > 0 && (
-        <span className="absolute -top-0.5 -right-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-brand-600 px-1 text-[10px] font-bold text-white">
+        <span className="absolute top-0.5 right-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-brand-600 px-1 text-[10px] font-bold text-white ring-2 ring-white">
           {unread > 9 ? '9+' : unread}
         </span>
       )}
@@ -50,36 +51,39 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200/70 bg-white/80 backdrop-blur">
-      <Container className="flex h-16 items-center justify-between gap-4">
-        <Logo />
-
-        <nav className="hidden items-center gap-1 md:flex">
-          {NAV_LINKS.map((link) => (
-            <NavLink
-              key={link.to}
-              to={link.to}
-              className={({ isActive }) =>
-                cn(
-                  'rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                  isActive ? 'text-brand-700' : 'text-slate-600 hover:text-slate-900'
-                )
-              }
-            >
-              {link.label}
-            </NavLink>
-          ))}
-        </nav>
+    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur-sm">
+      <Container className="flex h-14 items-center justify-between gap-4">
+        <div className="flex items-center gap-6">
+          <Logo />
+          <nav className="hidden items-center gap-1 md:flex">
+            {NAV_LINKS.map((link) => (
+              <NavLink
+                key={link.to}
+                to={link.to}
+                className={({ isActive }) =>
+                  cn(
+                    'rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors',
+                    isActive ? 'text-slate-900' : 'text-slate-500 hover:text-slate-900'
+                  )
+                }
+              >
+                {link.label}
+              </NavLink>
+            ))}
+          </nav>
+        </div>
 
         {/* Auth-aware actions. Render nothing while the session is resolving to
             avoid a flash of the wrong state. */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           {isLoading ? null : isAuthenticated ? (
             <>
               <NotificationBell />
               <MessagesLink />
               <Link to="/posts/new" className="hidden sm:block">
-                <Button size="sm">+ Create</Button>
+                <Button size="sm">
+                  <Plus className="h-4 w-4" /> Create post
+                </Button>
               </Link>
               <UserMenu user={user} onLogout={handleLogout} />
             </>

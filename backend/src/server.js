@@ -27,7 +27,7 @@ async function start() {
   await connectDatabase();
 
   server.listen(env.port, () => {
-    logger.info(`TeamUp API running in ${env.nodeEnv} mode`);
+    logger.info(`Squadly API running in ${env.nodeEnv} mode`);
     logger.info(`Listening on http://localhost:${env.port}`);
     logger.info(`Health check: http://localhost:${env.port}${env.apiPrefix}/health`);
   });

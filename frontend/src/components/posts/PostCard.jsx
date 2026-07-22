@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
+import { Users, MapPin, CalendarDays } from 'lucide-react';
 import { Avatar, Badge, Card } from '@/components/ui';
 import BookmarkButton from './BookmarkButton';
-import { POST_TYPE_MAP, POST_MODE_MAP } from '@/lib/postOptions';
+import { postTypeMeta, POST_MODE_MAP } from '@/lib/postOptions';
 
 function formatDeadline(date) {
   if (!date) return null;
@@ -13,16 +14,17 @@ function formatDeadline(date) {
  * owner edit/delete). `showAuthor` toggles the author row (off for "my posts").
  */
 export default function PostCard({ post, actions = null, showAuthor = true }) {
-  const type = POST_TYPE_MAP[post.type] ?? { label: post.type, icon: '📌' };
+  const type = postTypeMeta(post);
+  const TypeIcon = type.Icon;
   const deadline = formatDeadline(post.deadline);
   const isClosed = post.status === 'closed';
 
   return (
-    <Card className="flex flex-col gap-4">
+    <Card hover className="flex flex-col gap-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2">
-          <Badge variant="slate">
-            <span aria-hidden>{type.icon}</span> {type.label}
+          <Badge variant="brand">
+            {TypeIcon && <TypeIcon className="h-3.5 w-3.5" />} {type.label}
           </Badge>
           {isClosed && <Badge variant="amber">Closed</Badge>}
         </div>
@@ -50,9 +52,19 @@ export default function PostCard({ post, actions = null, showAuthor = true }) {
       )}
 
       <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
-        <span>👥 {post.membersNeeded} needed</span>
-        {post.location && <span>📍 {post.location}</span>}
-        {deadline && <span>🗓️ by {deadline}</span>}
+        <span className="inline-flex items-center gap-1.5">
+          <Users className="h-3.5 w-3.5" /> {post.membersNeeded} needed
+        </span>
+        {post.location && (
+          <span className="inline-flex items-center gap-1.5">
+            <MapPin className="h-3.5 w-3.5" /> {post.location}
+          </span>
+        )}
+        {deadline && (
+          <span className="inline-flex items-center gap-1.5">
+            <CalendarDays className="h-3.5 w-3.5" /> by {deadline}
+          </span>
+        )}
       </div>
 
       {(showAuthor && post.author) || actions ? (

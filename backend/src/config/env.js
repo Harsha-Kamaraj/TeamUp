@@ -30,15 +30,21 @@ function read(key, { required = false, fallback = undefined } = {}) {
 const nodeEnv = read('NODE_ENV', { fallback: 'development' });
 const isProduction = nodeEnv === 'production';
 
+// Default 5001, not 5000 — macOS Control Center/AirPlay occupies 5000.
+const port = Number(read('PORT', { fallback: '5001' }));
+
 const env = {
   nodeEnv,
   isProduction,
   isDevelopment: nodeEnv === 'development',
   isTest: nodeEnv === 'test',
 
-  // Default 5001, not 5000 — macOS Control Center/AirPlay occupies 5000.
-  port: Number(read('PORT', { fallback: '5001' })),
+  port,
   apiPrefix: read('API_PREFIX', { fallback: '/api/v1' }),
+
+  // Public URL of this backend — used to build absolute URLs for locally
+  // stored uploads. In production set SERVER_URL to your Render URL.
+  serverUrl: read('SERVER_URL', { fallback: `http://localhost:${port}` }),
 
   // Accept a comma-separated list of allowed origins for CORS.
   clientUrls: read('CLIENT_URL', { fallback: 'http://localhost:5173' })
@@ -66,7 +72,7 @@ const env = {
   // ── Refresh-token cookie settings ───────────────────────────────────────
   cookie: {
     name: 'refreshToken',
-    // Optional explicit domain in production (e.g. ".teamup.app").
+    // Optional explicit domain in production (e.g. ".squadly.app").
     domain: read('COOKIE_DOMAIN', { fallback: undefined }),
     // Cross-site (Vercel ↔ Render) needs SameSite=None + Secure in prod.
     // Locally (http) we use Lax so the cookie still works over plain HTTP.
@@ -76,7 +82,7 @@ const env = {
 
   // ── Email (transport wired up fully in Phase 9) ─────────────────────────
   email: {
-    from: read('EMAIL_FROM', { fallback: 'TeamUp <no-reply@teamup.local>' }),
+    from: read('EMAIL_FROM', { fallback: 'Squadly <no-reply@squadly.local>' }),
     smtp: {
       host: read('SMTP_HOST', { fallback: undefined }),
       port: Number(read('SMTP_PORT', { fallback: '587' })),

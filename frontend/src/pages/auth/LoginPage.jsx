@@ -52,7 +52,7 @@ export default function LoginPage() {
           label="Email"
           type="email"
           autoComplete="email"
-          placeholder="you@college.edu"
+          placeholder="you@gmail.com"
           error={errors.email?.message}
           {...register('email', {
             required: 'Email is required',

@@ -5,10 +5,11 @@ import { postApi } from '@/api/postApi';
 import { interestApi } from '@/api/interestApi';
 import { useAuth } from '@/contexts/AuthContext';
 import { Alert, Avatar, Badge, Button, Card, Container, Spinner, Textarea } from '@/components/ui';
+import { Users, MapPin, CalendarDays, HandHeart } from 'lucide-react';
 import MessageButton from '@/components/chat/MessageButton';
 import BookmarkButton from '@/components/posts/BookmarkButton';
 import TeamPanel from '@/components/posts/TeamPanel';
-import { POST_TYPE_MAP, POST_MODE_MAP } from '@/lib/postOptions';
+import { postTypeMeta, POST_MODE_MAP } from '@/lib/postOptions';
 import { getErrorMessage } from '@/utils/getErrorMessage';
 
 const formatDate = (d) =>
@@ -110,7 +111,7 @@ function InterestedStudents({ postId }) {
           ))}
         </ul>
       ) : (
-        <p className="mt-4 text-sm text-slate-400">No interest yet. Share your opportunity!</p>
+        <p className="mt-4 text-sm text-slate-400">No interest yet. Share your post! 📣</p>
       )}
     </Card>
   );
@@ -171,8 +172,8 @@ export default function PostDetailPage() {
       <Container className="py-16">
         <Alert variant="error">
           {error?.response?.status === 404
-            ? 'This opportunity could not be found.'
-            : 'Something went wrong loading this opportunity.'}
+            ? 'This post could not be found.'
+            : 'Something went wrong loading this post.'}
         </Alert>
         <Link to="/" className="mt-4 inline-block">
           <Button variant="outline">Back to home</Button>
@@ -181,12 +182,13 @@ export default function PostDetailPage() {
     );
   }
 
-  const type = POST_TYPE_MAP[post.type] ?? { label: post.type, icon: '📌' };
+  const type = postTypeMeta(post);
+  const TypeIcon = type.Icon;
   const isOwner = post.author?.id === user?.id;
   const deadline = formatDate(post.deadline);
 
   const handleDelete = async () => {
-    if (!window.confirm('Delete this opportunity? This cannot be undone.')) return;
+    if (!window.confirm('Delete this post? This cannot be undone.')) return;
     setDeleting(true);
     try {
       await postApi.remove(id);
@@ -213,7 +215,7 @@ export default function PostDetailPage() {
       <Card className="p-6 sm:p-8">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="slate">
-            <span aria-hidden>{type.icon}</span> {type.label}
+            {TypeIcon && <TypeIcon className="h-3.5 w-3.5" />} {type.label}
           </Badge>
           {post.status === 'closed' && <Badge variant="amber">Closed</Badge>}
           <span className="ml-auto text-xs text-slate-400">
@@ -238,12 +240,24 @@ export default function PostDetailPage() {
         )}
 
         <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-600">
-          <span>👥 <strong className="font-semibold">{post.membersNeeded}</strong> members needed</span>
-          {post.location && <span>📍 {post.location}</span>}
-          {deadline && <span>🗓️ Apply by {deadline}</span>}
+          <span className="inline-flex items-center gap-1.5">
+            <Users className="h-4 w-4 text-slate-400" />
+            <strong className="font-semibold">{post.membersNeeded}</strong> members needed
+          </span>
+          {post.location && (
+            <span className="inline-flex items-center gap-1.5">
+              <MapPin className="h-4 w-4 text-slate-400" /> {post.location}
+            </span>
+          )}
+          {deadline && (
+            <span className="inline-flex items-center gap-1.5">
+              <CalendarDays className="h-4 w-4 text-slate-400" /> Apply by {deadline}
+            </span>
+          )}
           {post.interestCount > 0 && (
-            <span>
-              🙋 <strong className="font-semibold">{post.interestCount}</strong> interested
+            <span className="inline-flex items-center gap-1.5">
+              <HandHeart className="h-4 w-4 text-slate-400" />
+              <strong className="font-semibold">{post.interestCount}</strong> interested
             </span>
           )}
         </div>
@@ -289,7 +303,7 @@ export default function PostDetailPage() {
               </Button>
             </div>
           ) : post.status === 'closed' ? (
-            <Button disabled>This opportunity is closed</Button>
+            <Button disabled>This post is closed</Button>
           ) : post.hasExpressedInterest ? (
             <div className="flex flex-wrap items-center gap-3">
               <Badge variant="green">✓ You&apos;re interested</Badge>

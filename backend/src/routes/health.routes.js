@@ -24,7 +24,7 @@ router.get(
       timestamp: new Date().toISOString(),
       database: DB_STATES[mongoose.connection.readyState] ?? 'unknown',
     };
-    res.status(200).json(new ApiResponse(200, data, 'TeamUp API is healthy'));
+    res.status(200).json(new ApiResponse(200, data, 'Squadly API is healthy'));
   })
 );
 

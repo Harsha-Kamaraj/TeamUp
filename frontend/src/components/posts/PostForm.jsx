@@ -4,11 +4,12 @@ import { Alert, Button, Input, Select, Textarea, TagInput } from '@/components/u
 import { getErrorMessage } from '@/utils/getErrorMessage';
 import { POST_TYPES, POST_MODES } from '@/lib/postOptions';
 
-const typeOptions = POST_TYPES.map((t) => ({ value: t.value, label: `${t.icon}  ${t.label}` }));
+const typeOptions = POST_TYPES.map((t) => ({ value: t.value, label: `${t.emoji} ${t.label}` }));
 
-/** Empty defaults for creating a new opportunity. */
+/** Empty defaults for creating a new post. */
 export const emptyPostValues = {
   type: 'hackathon',
+  customType: '',
   title: '',
   description: '',
   requiredSkills: [],
@@ -29,16 +30,19 @@ export default function PostForm({ defaultValues = emptyPostValues, onSubmit, su
   const {
     register,
     control,
+    watch,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm({ defaultValues });
+
+  const isOther = watch('type') === 'other';
 
   const submit = async (values) => {
     setFormError('');
     try {
       await onSubmit(values);
     } catch (err) {
-      setFormError(getErrorMessage(err, 'Could not save the opportunity.'));
+      setFormError(getErrorMessage(err, 'Could not save the post.'));
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
@@ -61,6 +65,18 @@ export default function PostForm({ defaultValues = emptyPostValues, onSubmit, su
         )}
       </div>
 
+      {isOther && (
+        <Input
+          label="What kind of event? ✨"
+          placeholder="e.g. DJ Nite, Cultural Fest, Study Group"
+          error={errors.customType?.message}
+          {...register('customType', {
+            required: 'Tell us what kind of event this is',
+            maxLength: { value: 40, message: 'Keep it under 40 characters' },
+          })}
+        />
+      )}
+
       <Input
         label="Title"
         placeholder="e.g. Looking for a frontend dev for HackMIT"
@@ -74,7 +90,7 @@ export default function PostForm({ defaultValues = emptyPostValues, onSubmit, su
       <Textarea
         label="Description"
         rows={6}
-        placeholder="Describe the opportunity, what you're building, and who you're looking for…"
+        placeholder="Describe what you're building, the event, and who you're looking for…"
         error={errors.description?.message}
         {...register('description', {
           required: 'Description is required',

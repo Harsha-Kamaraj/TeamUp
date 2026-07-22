@@ -1,21 +1,18 @@
 import { Link } from 'react-router-dom';
+import { Users } from 'lucide-react';
 import { cn } from '@/utils/cn';
 
-/**
- * Logo — the TeamUp wordmark. Links home by default.
- */
+/** Logo — a vibrant gradient mark + clean wordmark. */
 export default function Logo({ className }) {
   return (
-    <Link to="/" className={cn('inline-flex items-center gap-2 font-extrabold tracking-tight', className)}>
+    <Link to="/" className={cn('inline-flex items-center gap-2', className)}>
       <span
         aria-hidden
-        className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-brand-500 to-violet-500 text-white shadow-sm"
+        className="bg-brand-gradient grid h-8 w-8 place-items-center rounded-xl text-white shadow-sm"
       >
-        🤝
+        <Users className="h-[18px] w-[18px]" strokeWidth={2.5} />
       </span>
-      <span className="bg-gradient-to-r from-brand-600 to-violet-600 bg-clip-text text-xl text-transparent">
-        TeamUp
-      </span>
+      <span className="text-[17px] font-bold tracking-tight text-slate-900">Squadly</span>
     </Link>
   );
 }

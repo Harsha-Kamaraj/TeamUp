@@ -2,29 +2,24 @@ import { cn } from '@/utils/cn';
 import Spinner from './Spinner';
 
 /**
- * Button — the primary interactive element of the design system.
+ * Button — friendly & vibrant. Primary uses the signature gradient.
  *
- * Props:
- *   variant: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger'
- *   size:    'sm' | 'md' | 'lg'
- *   loading: shows a spinner and disables the button
- *   fullWidth: stretches to container width
+ * variant: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger'
+ * size:    'sm' | 'md' | 'lg'
  */
 const VARIANTS = {
   primary:
-    'bg-brand-600 text-white shadow-sm hover:bg-brand-700 active:bg-brand-800 focus-visible:outline-brand-600',
-  secondary:
-    'bg-brand-50 text-brand-700 hover:bg-brand-100 active:bg-brand-200 focus-visible:outline-brand-400',
-  outline:
-    'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 active:bg-slate-100',
-  ghost: 'text-slate-700 hover:bg-slate-100 active:bg-slate-200',
+    'bg-brand-gradient text-white shadow-sm transition-[filter,box-shadow] hover:brightness-[1.06] hover:shadow-md',
+  secondary: 'border border-slate-200 bg-white text-slate-700 shadow-xs hover:bg-slate-50 hover:border-slate-300',
+  outline: 'border border-slate-200 bg-white text-slate-700 shadow-xs hover:bg-slate-50 hover:border-slate-300',
+  ghost: 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
   danger: 'bg-red-600 text-white shadow-sm hover:bg-red-700 active:bg-red-800',
 };
 
 const SIZES = {
-  sm: 'h-9 px-3.5 text-sm gap-1.5',
-  md: 'h-11 px-5 text-sm gap-2',
-  lg: 'h-12 px-6 text-base gap-2',
+  sm: 'h-9 px-3.5 text-[13px] gap-1.5',
+  md: 'h-10 px-4 text-sm gap-2',
+  lg: 'h-12 px-6 text-[15px] gap-2',
 };
 
 export default function Button({
@@ -43,8 +38,8 @@ export default function Button({
       type={type}
       disabled={disabled || loading}
       className={cn(
-        'inline-flex items-center justify-center rounded-xl font-semibold transition-colors',
-        'disabled:cursor-not-allowed disabled:opacity-60',
+        'inline-flex items-center justify-center rounded-xl font-semibold whitespace-nowrap transition-colors',
+        'focus-visible:outline-brand-600 disabled:cursor-not-allowed disabled:opacity-50',
         VARIANTS[variant],
         SIZES[size],
         fullWidth && 'w-full',

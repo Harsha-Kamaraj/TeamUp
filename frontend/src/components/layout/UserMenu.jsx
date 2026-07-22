@@ -47,7 +47,7 @@ export default function UserMenu({ user, onLogout }) {
         aria-expanded={open}
         className="flex items-center gap-2 rounded-full p-0.5 pr-2 transition-colors hover:bg-slate-100"
       >
-        <span className="grid h-9 w-9 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-brand-500 to-violet-500 text-sm font-bold text-white">
+        <span className="bg-brand-gradient grid h-9 w-9 place-items-center overflow-hidden rounded-full text-sm font-semibold text-white">
           {user.avatar ? (
             <img src={user.avatar} alt="" className="h-full w-full object-cover" />
           ) : (
@@ -83,7 +83,7 @@ export default function UserMenu({ user, onLogout }) {
             onClick={() => setOpen(false)}
             className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50"
           >
-            My opportunities
+            My posts
           </Link>
           <Link
             to="/my-interests"

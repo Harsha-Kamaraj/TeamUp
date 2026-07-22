@@ -5,6 +5,8 @@
  * start listening — that's server.js's job. Keeping them separate makes the
  * app importable for testing and keeps startup concerns in one place.
  */
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -72,10 +74,20 @@ app.use(
 app.get('/', (req, res) => {
   res.json({
     success: true,
-    message: 'TeamUp API',
+    message: 'Squadly API',
     docs: `${env.apiPrefix}/health`,
   });
 });
+
+// Locally-stored uploads (avatar fallback when Cloudinary isn't configured).
+// CORP:cross-origin lets the frontend origin load these images via <img>.
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+app.use(
+  '/uploads',
+  express.static(path.join(__dirname, '../uploads'), {
+    setHeaders: (res) => res.set('Cross-Origin-Resource-Policy', 'cross-origin'),
+  })
+);
 
 app.use(env.apiPrefix, apiRoutes);
 

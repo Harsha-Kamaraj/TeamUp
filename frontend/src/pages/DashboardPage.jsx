@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { Megaphone, HandHeart, Star, MessageSquare, Plus } from 'lucide-react';
 import { authApi } from '@/api/authApi';
 import { dashboardApi } from '@/api/dashboardApi';
 import { conversationApi } from '@/api/conversationApi';
@@ -52,11 +53,11 @@ function RecentActivity({ interests }) {
   return (
     <Card>
       <h2 className="text-sm font-semibold tracking-wide text-slate-500 uppercase">
-        Recent interest in your opportunities
+        Recent interest in your posts
       </h2>
       {interests.length === 0 ? (
         <p className="mt-4 text-sm text-slate-400">
-          No one has expressed interest yet. Share your opportunities to get noticed!
+          No one has expressed interest yet. Share your posts to get noticed! ✨
         </p>
       ) : (
         <ul className="mt-4 space-y-4">
@@ -116,20 +117,22 @@ export default function DashboardPage() {
 
       {/* Stats */}
       <div className="mb-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard icon="📢" label="My opportunities" value={val(stats?.postsCount)} to="/my-posts" />
-        <StatCard icon="🙋" label="Interests received" value={val(stats?.interestsReceived)} to="/my-posts" />
-        <StatCard icon="⭐" label="Interests sent" value={val(stats?.interestsSent)} to="/my-interests" />
-        <StatCard icon="💬" label="Unread messages" value={conversations ? unread : '—'} to="/chat" />
+        <StatCard icon={Megaphone} label="My posts" value={val(stats?.postsCount)} to="/my-posts" />
+        <StatCard icon={HandHeart} label="Interests received" value={val(stats?.interestsReceived)} to="/my-posts" />
+        <StatCard icon={Star} label="Interests sent" value={val(stats?.interestsSent)} to="/my-interests" />
+        <StatCard icon={MessageSquare} label="Unread messages" value={conversations ? unread : '—'} to="/chat" />
       </div>
 
       {/* Quick actions */}
       <div className="mb-8 flex flex-wrap gap-3">
         <Link to="/posts/new">
-          <Button size="lg">+ Create an opportunity</Button>
+          <Button size="lg">
+            <Plus className="h-4 w-4" /> Create a post
+          </Button>
         </Link>
         <Link to="/browse">
           <Button size="lg" variant="outline">
-            Browse opportunities
+            Explore Your Feed
           </Button>
         </Link>
         <Link to="/saved">
@@ -169,7 +172,7 @@ export default function DashboardPage() {
               </div>
             )}
             <div className="flex justify-between">
-              <dt className="text-slate-500">Open opportunities</dt>
+              <dt className="text-slate-500">Open posts</dt>
               <dd className="font-medium text-slate-900">{val(stats?.openPostsCount)}</dd>
             </div>
           </dl>

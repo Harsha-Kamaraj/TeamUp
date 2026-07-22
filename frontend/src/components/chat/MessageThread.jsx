@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ArrowLeft, Send } from 'lucide-react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { conversationApi } from '@/api/conversationApi';
 import { useSocket } from '@/contexts/SocketContext';
@@ -102,8 +103,13 @@ export default function MessageThread({ conversationId, onBack }) {
       {/* Header */}
       <div className="flex items-center gap-3 border-b border-slate-100 px-4 py-3">
         {onBack && (
-          <button type="button" onClick={onBack} className="md:hidden text-slate-500 hover:text-slate-900">
-            ←
+          <button
+            type="button"
+            onClick={onBack}
+            aria-label="Back"
+            className="text-slate-500 hover:text-slate-900 md:hidden"
+          >
+            <ArrowLeft className="h-5 w-5" />
           </button>
         )}
         {other && (
@@ -186,7 +192,7 @@ export default function MessageThread({ conversationId, onBack }) {
           className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-brand-600 text-white transition-colors hover:bg-brand-700 disabled:opacity-50"
           aria-label="Send"
         >
-          ➤
+          <Send className="h-[18px] w-[18px]" />
         </button>
       </form>
     </div>

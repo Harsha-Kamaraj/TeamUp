@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { CheckCircle2 } from 'lucide-react';
 import { postApi } from '@/api/postApi';
 import { Avatar, Badge, Card, Spinner } from '@/components/ui';
 
@@ -25,7 +26,8 @@ export default function TeamPanel({ postId }) {
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold tracking-wide text-slate-500 uppercase">Team</h2>
         <span className="text-sm font-semibold text-slate-900">
-          {team.count}/{team.needed} {team.isFull && <span className="text-emerald-600">· Full 🎉</span>}
+          {team.count}/{team.needed}{' '}
+          {team.isFull && <span className="text-emerald-600">· Full</span>}
         </span>
       </div>
 
@@ -65,7 +67,9 @@ export default function TeamPanel({ postId }) {
           </div>
         </div>
       ) : (
-        <p className="mt-5 text-sm text-emerald-600">✓ All required skills are covered.</p>
+        <p className="mt-5 inline-flex items-center gap-1.5 text-sm text-emerald-600">
+          <CheckCircle2 className="h-4 w-4" /> All required skills are covered.
+        </p>
       )}
     </Card>
   );

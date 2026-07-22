@@ -22,10 +22,12 @@ const Textarea = forwardRef(function Textarea(
         rows={rows}
         aria-invalid={!!error}
         className={cn(
-          'w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-sm transition',
+          'w-full rounded-lg border bg-white px-3.5 py-2.5 text-sm text-slate-900 transition',
           'placeholder:text-slate-400',
-          'focus:border-brand-500 focus:ring-2 focus:ring-brand-100 focus:outline-none',
-          error ? 'border-red-400 focus:border-red-500 focus:ring-red-100' : 'border-slate-300',
+          'focus:ring-2 focus:outline-none',
+          error
+            ? 'border-red-400 focus:border-red-500 focus:ring-red-500/15'
+            : 'border-slate-300 hover:border-slate-400 focus:border-brand-500 focus:ring-brand-500/15',
           className
         )}
         {...props}

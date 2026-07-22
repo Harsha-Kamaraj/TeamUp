@@ -1,8 +1,8 @@
 {
-  "name": "teamup-backend",
+  "name": "squadly-backend",
   "version": "0.1.0",
   "private": true,
-  "description": "TeamUp backend API — Express + Mongoose.",
+  "description": "Squadly backend API — Express + Mongoose + Socket.IO.",
   "type": "module",
   "main": "src/server.js",
   "engines": {

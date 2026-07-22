@@ -8,6 +8,7 @@ const emptyToUndefined = (v) => (v === '' || v == null ? undefined : v);
 
 const baseFields = {
   type: z.enum(POST_TYPES),
+  customType: z.string().trim().max(40, 'Keep it under 40 characters').optional().default(''),
   title: z.string().trim().min(5, 'Title must be at least 5 characters').max(120),
   description: z.string().trim().min(20, 'Description must be at least 20 characters').max(5000),
   requiredSkills: z.array(tag).max(30, 'At most 30 skills').optional().default([]),
@@ -22,9 +23,30 @@ const baseFields = {
   tags: z.array(tag).max(15, 'At most 15 tags').optional().default([]),
 };
 
-export const createPostSchema = z.object(baseFields);
+// When "other" is chosen, a custom label is required.
+const requireCustomType = (data, ctx) => {
+  if (data.type === 'other' && !data.customType?.trim()) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ['customType'],
+      message: 'Tell us what kind of event this is',
+    });
+  }
+};
+
+export const createPostSchema = z.object(baseFields).superRefine(requireCustomType);
 
 // All fields optional on update, plus the ability to open/close the post.
 export const updatePostSchema = z
   .object({ ...baseFields, status: z.enum(POST_STATUSES) })
-  .partial();
+  .partial()
+  .superRefine((data, ctx) => {
+    // Only enforce when the update actually sets the type to "other".
+    if (data.type === 'other' && !data.customType?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['customType'],
+        message: 'Tell us what kind of event this is',
+      });
+    }
+  });

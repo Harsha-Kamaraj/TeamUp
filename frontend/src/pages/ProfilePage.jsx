@@ -1,5 +1,6 @@
 import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { Code2, Briefcase, Globe, FileText } from 'lucide-react';
 import { userApi } from '@/api/userApi';
 import { useAuth } from '@/contexts/AuthContext';
 import { Alert, Avatar, Badge, Button, Card, Container, Spinner } from '@/components/ui';
@@ -7,10 +8,10 @@ import MessageButton from '@/components/chat/MessageButton';
 import { AVAILABILITY, WORK_MODE } from '@/lib/profileOptions';
 
 const LINK_META = {
-  github: { label: 'GitHub', icon: '🐙' },
-  linkedin: { label: 'LinkedIn', icon: '💼' },
-  portfolio: { label: 'Portfolio', icon: '🌐' },
-  resume: { label: 'Resume', icon: '📄' },
+  github: { label: 'GitHub', Icon: Code2 },
+  linkedin: { label: 'LinkedIn', Icon: Briefcase },
+  portfolio: { label: 'Portfolio', Icon: Globe },
+  resume: { label: 'Resume', Icon: FileText },
 };
 
 function Section({ title, children }) {
@@ -83,14 +84,17 @@ export default function ProfilePage() {
 
             {activeLinks.length > 0 && (
               <div className="mt-4 flex flex-wrap gap-2">
-                {activeLinks.map(([key, url]) => (
-                  <a key={key} href={url} target="_blank" rel="noreferrer noopener">
-                    <Button variant="outline" size="sm">
-                      <span aria-hidden>{LINK_META[key]?.icon}</span>
-                      {LINK_META[key]?.label ?? key}
-                    </Button>
-                  </a>
-                ))}
+                {activeLinks.map(([key, url]) => {
+                  const LinkIcon = LINK_META[key]?.Icon;
+                  return (
+                    <a key={key} href={url} target="_blank" rel="noreferrer noopener">
+                      <Button variant="outline" size="sm">
+                        {LinkIcon && <LinkIcon className="h-4 w-4" />}
+                        {LINK_META[key]?.label ?? key}
+                      </Button>
+                    </a>
+                  );
+                })}
               </div>
             )}
           </div>

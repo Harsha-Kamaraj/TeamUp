@@ -26,7 +26,7 @@ export default function Avatar({ name, src, size = 'md', className }) {
   return (
     <span
       className={cn(
-        'inline-grid shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-brand-500 to-violet-500 font-bold text-white',
+        'inline-grid shrink-0 place-items-center overflow-hidden rounded-full bg-brand-gradient font-semibold text-white',
         SIZES[size],
         className
       )}

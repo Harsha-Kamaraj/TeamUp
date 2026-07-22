@@ -31,7 +31,7 @@ export default function RegisterPage() {
   return (
     <AuthCard
       title="Create your account"
-      subtitle="Join TeamUp and start building with others"
+      subtitle="Join Squadly and start building with others 🚀"
       footer={
         <>
           Already have an account?{' '}
@@ -59,7 +59,7 @@ export default function RegisterPage() {
           label="Email"
           type="email"
           autoComplete="email"
-          placeholder="you@college.edu"
+          placeholder="you@gmail.com"
           error={errors.email?.message}
           {...register('email', {
             required: 'Email is required',

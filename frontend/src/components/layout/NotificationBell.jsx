@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Bell, MessageSquare, Sparkles, UserPlus, Users } from 'lucide-react';
 import { notificationApi } from '@/api/notificationApi';
 import { Avatar } from '@/components/ui';
 import { cn } from '@/utils/cn';
 import { timeAgo } from '@/utils/timeAgo';
 
-const TYPE_ICON = { interest: '🙋', message: '💬', system: '✨' };
+const TYPE_ICON = { interest: UserPlus, message: MessageSquare, system: Sparkles, team: Users };
 
 export default function NotificationBell() {
   const [open, setOpen] = useState(false);
@@ -52,11 +53,14 @@ export default function NotificationBell() {
         aria-label="Notifications"
         aria-haspopup="menu"
         aria-expanded={open}
-        className="relative rounded-lg px-2 py-2 text-lg text-slate-600 transition-colors hover:bg-slate-100"
+        className={cn(
+          'relative rounded-lg p-2 transition-colors',
+          open ? 'bg-brand-50 text-brand-700' : 'text-slate-500 hover:bg-slate-100 hover:text-slate-900'
+        )}
       >
-        🔔
+        <Bell className="h-5 w-5" />
         {unread > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-brand-600 px-1 text-[10px] font-bold text-white">
+          <span className="absolute top-0.5 right-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-brand-600 px-1 text-[10px] font-bold text-white ring-2 ring-white">
             {unread > 9 ? '9+' : unread}
           </span>
         )}
@@ -84,7 +88,9 @@ export default function NotificationBell() {
             {notifications.length === 0 ? (
               <p className="px-4 py-10 text-center text-sm text-slate-400">No notifications yet.</p>
             ) : (
-              notifications.map((n) => (
+              notifications.map((n) => {
+                const Icon = TYPE_ICON[n.type] ?? Bell;
+                return (
                 <button
                   key={n.id}
                   type="button"
@@ -97,8 +103,8 @@ export default function NotificationBell() {
                   {n.actor ? (
                     <Avatar name={n.actor.name} src={n.actor.avatar} size="sm" />
                   ) : (
-                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-slate-100 text-base">
-                      {TYPE_ICON[n.type] ?? '🔔'}
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-brand-50 text-brand-600">
+                      <Icon className="h-4 w-4" />
                     </span>
                   )}
                   <div className="min-w-0 flex-1">
@@ -109,7 +115,8 @@ export default function NotificationBell() {
                   </div>
                   {!n.read && <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-brand-600" />}
                 </button>
-              ))
+                );
+              })
             )}
           </div>
         </div>

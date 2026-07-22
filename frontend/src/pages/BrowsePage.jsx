@@ -4,7 +4,8 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import { postApi } from '@/api/postApi';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDebounce } from '@/hooks/useDebounce';
-import { Alert, Button, Card, Container, Input, Select } from '@/components/ui';
+import { Search, Plus } from 'lucide-react';
+import { Alert, Button, Card, Container, EmptyState, Input, Select } from '@/components/ui';
 import PostCard from '@/components/posts/PostCard';
 import { POST_TYPES, POST_MODES } from '@/lib/postOptions';
 import { cn } from '@/utils/cn';
@@ -62,25 +63,29 @@ export default function BrowsePage() {
     <Container className="py-10">
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Browse opportunities</h1>
+          <h1 className="text-2xl font-bold text-slate-900">Your Feed 🔥</h1>
           <p className="mt-1 text-slate-500">
-            {isLoading ? 'Loading…' : `${total} ${total === 1 ? 'opportunity' : 'opportunities'}`}
+            {isLoading ? 'Loading…' : `${total} ${total === 1 ? 'post' : 'posts'} to explore`}
           </p>
         </div>
         <Link to={isAuthenticated ? '/posts/new' : '/register'}>
-          <Button>+ Create opportunity</Button>
+          <Button>
+            <Plus className="h-4 w-4" /> Create post
+          </Button>
         </Link>
       </div>
 
       {/* Filter bar */}
       <Card className="mb-8 space-y-4">
         <div className="flex flex-col gap-3 sm:flex-row">
-          <div className="flex-1">
+          <div className="relative flex-1">
+            <Search className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <Input
+              className="pl-10"
               placeholder="Search by title, skill, or tag…"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              aria-label="Search opportunities"
+              aria-label="Search posts"
             />
           </div>
           <div className="sm:w-48">
@@ -113,13 +118,13 @@ export default function BrowsePage() {
               type="button"
               onClick={() => setType(t.value)}
               className={cn(
-                'rounded-full border px-3 py-1.5 text-sm font-medium transition-colors',
+                'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors',
                 type === t.value
                   ? 'border-brand-600 bg-brand-600 text-white'
                   : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
               )}
             >
-              <span aria-hidden>{t.icon}</span> {t.label}
+              <t.Icon className="h-3.5 w-3.5" /> {t.label}
             </button>
           ))}
         </div>
@@ -139,29 +144,29 @@ export default function BrowsePage() {
 
       {isLoading && <SkeletonGrid />}
 
-      {isError && <Alert variant="error">Could not load opportunities. Please try again.</Alert>}
+      {isError && <Alert variant="error">Could not load posts. Please try again.</Alert>}
 
       {!isLoading && posts.length === 0 && (
-        <Card className="flex flex-col items-center gap-3 py-16 text-center">
-          <span className="text-4xl">🔍</span>
-          <h2 className="text-lg font-bold text-slate-900">
-            {hasFilters ? 'No opportunities match your filters' : 'No opportunities yet'}
-          </h2>
-          <p className="max-w-sm text-sm text-slate-500">
-            {hasFilters
+        <EmptyState
+          icon={Search}
+          title={hasFilters ? 'No posts match your filters' : 'No posts yet'}
+          description={
+            hasFilters
               ? 'Try a different search or clear the filters.'
-              : 'Be the first to post one and start building your team.'}
-          </p>
-          {hasFilters ? (
-            <Button className="mt-2" variant="outline" onClick={clearFilters}>
-              Clear filters
-            </Button>
-          ) : (
-            <Link to={isAuthenticated ? '/posts/new' : '/register'} className="mt-2">
-              <Button size="lg">Create an opportunity</Button>
-            </Link>
-          )}
-        </Card>
+              : 'Be the first to post and start building your team. 🚀'
+          }
+          action={
+            hasFilters ? (
+              <Button variant="outline" onClick={clearFilters}>
+                Clear filters
+              </Button>
+            ) : (
+              <Link to={isAuthenticated ? '/posts/new' : '/register'}>
+                <Button size="lg">Create a post</Button>
+              </Link>
+            )
+          }
+        />
       )}
 
       {posts.length > 0 && (

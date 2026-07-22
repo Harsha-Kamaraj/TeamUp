@@ -1,4 +1,5 @@
 import { useNavigate, useParams } from 'react-router-dom';
+import { MessagesSquare } from 'lucide-react';
 import ConversationList from '@/components/chat/ConversationList';
 import MessageThread from '@/components/chat/MessageThread';
 import { Card, Container } from '@/components/ui';
@@ -28,9 +29,11 @@ export default function ChatPage() {
               <MessageThread conversationId={conversationId} onBack={() => navigate('/chat')} />
             ) : (
               <div className="grid h-full place-items-center p-8 text-center text-slate-400">
-                <div>
-                  <div className="text-4xl">💬</div>
-                  <p className="mt-2 text-sm">Select a conversation to start chatting.</p>
+                <div className="flex flex-col items-center">
+                  <span className="grid h-14 w-14 place-items-center rounded-2xl bg-slate-100 text-slate-400">
+                    <MessagesSquare className="h-7 w-7" />
+                  </span>
+                  <p className="mt-3 text-sm">Select a conversation to start chatting.</p>
                 </div>
               </div>
             )}

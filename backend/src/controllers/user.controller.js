@@ -66,7 +66,7 @@ export const uploadMyAvatar = asyncHandler(async (req, res) => {
 
   // Stable public_id per user so re-uploads overwrite the previous image.
   const { url, publicId } = await uploadImage(req.file.buffer, {
-    folder: 'teamup/avatars',
+    folder: 'squadly/avatars',
     publicId: `user_${user.id}`,
   });
 

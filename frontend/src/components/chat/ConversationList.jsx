@@ -24,7 +24,7 @@ export default function ConversationList({ activeId }) {
         </div>
       ) : !conversations?.length ? (
         <div className="grid flex-1 place-items-center p-6 text-center text-sm text-slate-400">
-          No conversations yet. Message someone from an opportunity to start one.
+          No conversations yet. Message someone from a post to start one.
         </div>
       ) : (
         <ul className="flex-1 divide-y divide-slate-100 overflow-y-auto">

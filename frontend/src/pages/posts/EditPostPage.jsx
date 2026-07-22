@@ -30,7 +30,7 @@ export default function EditPostPage() {
   if (isError) {
     return (
       <Container className="py-16">
-        <Alert variant="error">This opportunity could not be found.</Alert>
+        <Alert variant="error">This post could not be found.</Alert>
       </Container>
     );
   }
@@ -39,9 +39,9 @@ export default function EditPostPage() {
   if (!isOwner) {
     return (
       <Container className="py-16">
-        <Alert variant="error">You can only edit your own opportunities.</Alert>
+        <Alert variant="error">You can only edit your own posts.</Alert>
         <Link to={`/posts/${id}`} className="mt-4 inline-block">
-          <Button variant="outline">Back to opportunity</Button>
+          <Button variant="outline">Back to post</Button>
         </Link>
       </Container>
     );
@@ -49,6 +49,7 @@ export default function EditPostPage() {
 
   const defaultValues = {
     type: post.type,
+    customType: post.customType ?? '',
     title: post.title,
     description: post.description,
     requiredSkills: post.requiredSkills ?? [],
@@ -72,7 +73,7 @@ export default function EditPostPage() {
   return (
     <Container className="max-w-3xl py-10">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">Edit opportunity</h1>
+        <h1 className="text-2xl font-bold text-slate-900">Edit post</h1>
         <Link to={`/posts/${id}`}>
           <Button variant="ghost" size="sm">
             Cancel

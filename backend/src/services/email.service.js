@@ -62,10 +62,10 @@ export async function sendVerificationEmail(user, rawToken) {
   const url = `${clientBaseUrl}/verify-email?token=${rawToken}`;
   return sendEmail({
     to: user.email,
-    subject: 'Verify your TeamUp email',
-    text: `Hi ${user.name},\n\nConfirm your email to activate your TeamUp account:\n${url}\n\nThis link expires in ${env.auth.emailTokenExpiresMinutes} minutes.`,
+    subject: 'Verify your Squadly email',
+    text: `Hi ${user.name},\n\nConfirm your email to activate your Squadly account:\n${url}\n\nThis link expires in ${env.auth.emailTokenExpiresMinutes} minutes.`,
     html: `<p>Hi ${user.name},</p>
-           <p>Confirm your email to activate your TeamUp account:</p>
+           <p>Confirm your email to activate your Squadly account:</p>
            <p><a href="${url}">Verify my email</a></p>
            <p>This link expires in ${env.auth.emailTokenExpiresMinutes} minutes.</p>`,
   });
@@ -76,10 +76,10 @@ export async function sendPasswordResetEmail(user, rawToken) {
   const url = `${clientBaseUrl}/reset-password?token=${rawToken}`;
   return sendEmail({
     to: user.email,
-    subject: 'Reset your TeamUp password',
-    text: `Hi ${user.name},\n\nReset your TeamUp password using the link below:\n${url}\n\nIf you didn't request this, you can safely ignore this email.\nThis link expires in ${env.auth.emailTokenExpiresMinutes} minutes.`,
+    subject: 'Reset your Squadly password',
+    text: `Hi ${user.name},\n\nReset your Squadly password using the link below:\n${url}\n\nIf you didn't request this, you can safely ignore this email.\nThis link expires in ${env.auth.emailTokenExpiresMinutes} minutes.`,
     html: `<p>Hi ${user.name},</p>
-           <p>Reset your TeamUp password using the link below:</p>
+           <p>Reset your Squadly password using the link below:</p>
            <p><a href="${url}">Reset my password</a></p>
            <p>If you didn't request this, you can safely ignore this email.</p>
            <p>This link expires in ${env.auth.emailTokenExpiresMinutes} minutes.</p>`,

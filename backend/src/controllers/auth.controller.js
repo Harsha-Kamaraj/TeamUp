@@ -51,7 +51,7 @@ export const register = asyncHandler(async (req, res) => {
   // Welcome notification (waiting in the bell when they first look).
   await notifySystem({
     userId: user.id,
-    text: 'Welcome to TeamUp! Complete your profile to get noticed.',
+    text: 'Welcome to Squadly! Complete your profile to get noticed.',
     link: '/settings/profile',
   }).catch(() => {});
 

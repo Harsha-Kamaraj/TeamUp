@@ -1,0 +1,59 @@
+# Render Blueprint for the Squadly backend (Express API + Socket.IO).
+# In Render: New ▸ Blueprint ▸ point at this repo. Render reads this file and
+# creates the service. Fill the `sync: false` secrets in the dashboard.
+# Docs: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: squadly-api
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    # Render pings this to know the service is healthy after a deploy.
+    healthCheckPath: /api/v1/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: API_PREFIX
+        value: /api/v1
+      # Auto-generated strong secret (created once, kept across deploys).
+      - key: JWT_ACCESS_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_EXPIRES_IN
+        value: 15m
+      - key: REFRESH_TOKEN_EXPIRES_DAYS
+        value: "7"
+      - key: EMAIL_TOKEN_EXPIRES_MINUTES
+        value: "60"
+      # ── Set these in the Render dashboard (Environment tab) ──────────────
+      # Your MongoDB Atlas connection string.
+      - key: MONGODB_URI
+        sync: false
+      # Your Vercel frontend URL, e.g. https://squadly.vercel.app  (drives CORS).
+      - key: CLIENT_URL
+        sync: false
+      # This service's own public URL, e.g. https://squadly-api.onrender.com
+      # (used to build absolute URLs for any locally-stored uploads).
+      - key: SERVER_URL
+        sync: false
+      # Email (Brevo). EMAIL_FROM must be a verified sender in Brevo.
+      - key: EMAIL_FROM
+        sync: false
+      - key: SMTP_HOST
+        value: smtp-relay.brevo.com
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      # Image storage (Cloudinary) — required in production because Render's
+      # disk is ephemeral (locally-saved uploads are wiped on every restart).
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false

@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { Inbox, Plus } from 'lucide-react';
 import { postApi } from '@/api/postApi';
-import { Alert, Button, Card, Container, Spinner } from '@/components/ui';
+import { Alert, Button, Container, EmptyState, Spinner } from '@/components/ui';
 import PostCard from '@/components/posts/PostCard';
 
 export default function MyPostsPage() {
@@ -12,7 +13,7 @@ export default function MyPostsPage() {
   });
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this opportunity? This cannot be undone.')) return;
+    if (!window.confirm('Delete this post? This cannot be undone.')) return;
     await postApi.remove(id);
     queryClient.invalidateQueries({ queryKey: ['my-posts'] });
   };
@@ -20,9 +21,11 @@ export default function MyPostsPage() {
   return (
     <Container className="py-10">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">My opportunities</h1>
+        <h1 className="text-2xl font-bold text-slate-900">My posts 📢</h1>
         <Link to="/posts/new">
-          <Button>+ Create</Button>
+          <Button>
+            <Plus className="h-4 w-4" /> Create post
+          </Button>
         </Link>
       </div>
 
@@ -32,19 +35,19 @@ export default function MyPostsPage() {
         </div>
       )}
 
-      {isError && <Alert variant="error">Could not load your opportunities.</Alert>}
+      {isError && <Alert variant="error">Could not load your posts.</Alert>}
 
       {posts && posts.length === 0 && (
-        <Card className="flex flex-col items-center gap-3 py-16 text-center">
-          <span className="text-4xl">📭</span>
-          <h2 className="text-lg font-bold text-slate-900">No opportunities yet</h2>
-          <p className="max-w-sm text-sm text-slate-500">
-            Create your first opportunity to start finding teammates.
-          </p>
-          <Link to="/posts/new" className="mt-2">
-            <Button size="lg">Create an opportunity</Button>
-          </Link>
-        </Card>
+        <EmptyState
+          icon={Inbox}
+          title="No posts yet"
+          description="Create your first post to start finding teammates."
+          action={
+            <Link to="/posts/new">
+              <Button size="lg">Create a post</Button>
+            </Link>
+          }
+        />
       )}
 
       {posts && posts.length > 0 && (

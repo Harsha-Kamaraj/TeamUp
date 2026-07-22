@@ -42,7 +42,7 @@ export default function BookmarkButton({ postId, className }) {
       type="button"
       onClick={onClick}
       aria-pressed={bookmarked}
-      aria-label={bookmarked ? 'Remove from saved' : 'Save opportunity'}
+      aria-label={bookmarked ? 'Remove from saved' : 'Save post'}
       title={bookmarked ? 'Saved' : 'Save'}
       className={cn(
         'rounded-lg p-1.5 transition-colors',
