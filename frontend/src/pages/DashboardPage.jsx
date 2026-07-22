@@ -132,6 +132,11 @@ export default function DashboardPage() {
             Browse opportunities
           </Button>
         </Link>
+        <Link to="/saved">
+          <Button size="lg" variant="outline">
+            Saved
+          </Button>
+        </Link>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">

@@ -2,7 +2,7 @@
 
 A student collaboration platform where students can find teammates for hackathons, research, startups, projects, and competitions.
 
-**Status:** 🚧 Under Development — completed **Phase 12: Notifications**
+**Status:** 🚧 Under Development — completed **Phase 13: Bookmarks**
 
 ---
 
@@ -90,7 +90,7 @@ npm run dev
 9. ✅ **Interested Workflow & Email**
 10. ✅ **Real-time Chat**
 11. ✅ **Dashboard**
-12. ✅ **Notifications** ← *you are here*
-13. Bookmarks
+12. ✅ **Notifications**
+13. ✅ **Bookmarks** ← *you are here*
 14. Team Management
 15. Deployment & Optimization

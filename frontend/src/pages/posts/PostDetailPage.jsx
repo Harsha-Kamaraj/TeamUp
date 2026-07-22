@@ -6,6 +6,7 @@ import { interestApi } from '@/api/interestApi';
 import { useAuth } from '@/contexts/AuthContext';
 import { Alert, Avatar, Badge, Button, Card, Container, Spinner, Textarea } from '@/components/ui';
 import MessageButton from '@/components/chat/MessageButton';
+import BookmarkButton from '@/components/posts/BookmarkButton';
 import { POST_TYPE_MAP, POST_MODE_MAP } from '@/lib/postOptions';
 import { getErrorMessage } from '@/utils/getErrorMessage';
 
@@ -178,6 +179,7 @@ export default function PostDetailPage() {
           <span className="ml-auto text-xs text-slate-400">
             {POST_MODE_MAP[post.mode]?.label ?? post.mode}
           </span>
+          <BookmarkButton postId={post.id} />
         </div>
 
         <h1 className="mt-4 text-2xl font-bold text-slate-900">{post.title}</h1>

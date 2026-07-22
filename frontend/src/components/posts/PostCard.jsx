@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Avatar, Badge, Card } from '@/components/ui';
+import BookmarkButton from './BookmarkButton';
 import { POST_TYPE_MAP, POST_MODE_MAP } from '@/lib/postOptions';
 
 function formatDeadline(date) {
@@ -25,9 +26,12 @@ export default function PostCard({ post, actions = null, showAuthor = true }) {
           </Badge>
           {isClosed && <Badge variant="amber">Closed</Badge>}
         </div>
-        <span className="text-xs text-slate-400">
-          {POST_MODE_MAP[post.mode]?.label ?? post.mode}
-        </span>
+        <div className="flex items-center gap-1">
+          <span className="text-xs text-slate-400">
+            {POST_MODE_MAP[post.mode]?.label ?? post.mode}
+          </span>
+          <BookmarkButton postId={post.id} />
+        </div>
       </div>
 
       <div>

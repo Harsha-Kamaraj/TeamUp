@@ -94,6 +94,14 @@ export default function UserMenu({ user, onLogout }) {
             My interests
           </Link>
           <Link
+            to="/saved"
+            role="menuitem"
+            onClick={() => setOpen(false)}
+            className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50"
+          >
+            Saved
+          </Link>
+          <Link
             to={`/profile/${user.id}`}
             role="menuitem"
             onClick={() => setOpen(false)}

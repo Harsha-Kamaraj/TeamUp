@@ -2,6 +2,7 @@ import { Router } from 'express';
 
 import * as postController from '../controllers/post.controller.js';
 import * as interestController from '../controllers/interest.controller.js';
+import * as bookmarkController from '../controllers/bookmark.controller.js';
 import validate from '../middleware/validate.js';
 import { protect, optionalAuth } from '../middleware/auth.middleware.js';
 import { createPostSchema, updatePostSchema } from '../validators/post.validators.js';
@@ -27,5 +28,9 @@ router.delete('/:id', protect, postController.deletePost);
 router.post('/:id/interest', protect, validate(expressInterestSchema), interestController.expressInterest);
 router.delete('/:id/interest', protect, interestController.withdrawInterest);
 router.get('/:id/interests', protect, interestController.getPostInterests); // author only
+
+// ── Bookmarks ─────────────────────────────────────────────────────────────
+router.post('/:id/bookmark', protect, bookmarkController.addBookmark);
+router.delete('/:id/bookmark', protect, bookmarkController.removeBookmark);
 
 export default router;
