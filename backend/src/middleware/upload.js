@@ -18,3 +18,15 @@ export const uploadAvatar = multer({
   fileFilter: imageFilter,
   limits: { fileSize: 2 * 1024 * 1024 }, // 2 MB
 }).single('avatar');
+
+function pdfFilter(_req, file, cb) {
+  if (file.mimetype === 'application/pdf') return cb(null, true);
+  cb(new ApiError(400, 'Only PDF files are allowed'));
+}
+
+/** Resume upload — a single PDF, up to 5 MB, in the "resume" field. */
+export const uploadResume = multer({
+  storage,
+  fileFilter: pdfFilter,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
+}).single('resume');

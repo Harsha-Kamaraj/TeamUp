@@ -17,7 +17,7 @@ const EDITABLE_FIELDS = [
   'availability',
   'workMode',
 ];
-const LINK_FIELDS = ['github', 'linkedin', 'portfolio', 'resume'];
+const LINK_FIELDS = ['github', 'linkedin', 'portfolio'];
 
 /**
  * GET /users/:id
@@ -90,4 +90,41 @@ export const removeMyAvatar = asyncHandler(async (req, res) => {
   await user.save({ validateModifiedOnly: true });
 
   res.json(new ApiResponse(200, { user }, 'Profile picture removed'));
+});
+
+/**
+ * POST /users/me/resume   (multipart/form-data, field "resume")
+ * Upload/replace the current user's resume (PDF).
+ */
+export const uploadMyResume = asyncHandler(async (req, res) => {
+  if (!req.file) throw ApiError.badRequest('No PDF file provided');
+
+  const user = await User.findById(req.user.id).select('+resumePublicId');
+
+  const { url, publicId } = await uploadImage(req.file.buffer, {
+    folder: 'squadly/resumes',
+    publicId: `resume_${user.id}`,
+    resourceType: 'raw',
+  });
+
+  user.resumeUrl = url;
+  user.resumePublicId = publicId;
+  await user.save({ validateModifiedOnly: true });
+
+  res.json(new ApiResponse(200, { user }, 'Resume uploaded'));
+});
+
+/**
+ * DELETE /users/me/resume
+ * Remove the current user's resume.
+ */
+export const removeMyResume = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user.id).select('+resumePublicId');
+
+  if (user.resumePublicId) await deleteImage(user.resumePublicId, { resourceType: 'raw' });
+  user.resumeUrl = '';
+  user.resumePublicId = '';
+  await user.save({ validateModifiedOnly: true });
+
+  res.json(new ApiResponse(200, { user }, 'Resume removed'));
 });

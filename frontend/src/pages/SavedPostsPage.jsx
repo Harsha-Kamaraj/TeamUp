@@ -13,7 +13,7 @@ export default function SavedPostsPage() {
 
   return (
     <Container className="py-10">
-      <div className="mb-6">
+      <div className="animate-fade-up mb-6">
         <h1 className="text-2xl font-bold text-slate-900">Saved posts 🔖</h1>
         <p className="mt-1 text-slate-500">Posts you&apos;ve bookmarked for later.</p>
       </div>

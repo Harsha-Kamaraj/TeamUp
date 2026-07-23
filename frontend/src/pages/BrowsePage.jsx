@@ -61,9 +61,9 @@ export default function BrowsePage() {
 
   return (
     <Container className="py-10">
-      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+      <div className="animate-fade-up mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Your Feed 🔥</h1>
+          <h1 className="text-2xl font-bold text-slate-900">Your Feed ✨</h1>
           <p className="mt-1 text-slate-500">
             {isLoading ? 'Loading…' : `${total} ${total === 1 ? 'post' : 'posts'} to explore`}
           </p>
@@ -107,7 +107,7 @@ export default function BrowsePage() {
               'rounded-full border px-3 py-1.5 text-sm font-medium transition-colors',
               type === ''
                 ? 'border-brand-600 bg-brand-600 text-white'
-                : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                : 'bg-card border-slate-200 text-slate-600 hover:bg-slate-50'
             )}
           >
             All
@@ -121,7 +121,7 @@ export default function BrowsePage() {
                 'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-sm font-medium transition-colors',
                 type === t.value
                   ? 'border-brand-600 bg-brand-600 text-white'
-                  : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                  : 'bg-card border-slate-200 text-slate-600 hover:bg-slate-50'
               )}
             >
               <t.Icon className="h-3.5 w-3.5" /> {t.label}
@@ -172,8 +172,14 @@ export default function BrowsePage() {
       {posts.length > 0 && (
         <>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {posts.map((post) => (
-              <PostCard key={post.id} post={post} />
+            {posts.map((post, i) => (
+              <div
+                key={post.id}
+                className="animate-fade-up"
+                style={{ animationDelay: `${Math.min(i, 9) * 60}ms` }}
+              >
+                <PostCard post={post} />
+              </div>
             ))}
           </div>
 

@@ -105,6 +105,10 @@ const userSchema = new Schema(
 
     // Cloudinary public_id for the avatar, so we can delete/replace it.
     avatarPublicId: { type: String, select: false, default: '' },
+
+    // Uploaded resume (PDF): public URL + private id for deletion/replacement.
+    resumeUrl: { type: String, default: '' },
+    resumePublicId: { type: String, select: false, default: '' },
   },
   {
     timestamps: true,
@@ -122,6 +126,7 @@ const userSchema = new Schema(
         delete ret.passwordResetExpires;
         delete ret.passwordChangedAt;
         delete ret.avatarPublicId;
+        delete ret.resumePublicId;
         return ret;
       },
     },

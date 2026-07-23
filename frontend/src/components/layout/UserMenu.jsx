@@ -62,7 +62,7 @@ export default function UserMenu({ user, onLogout }) {
       {open && (
         <div
           role="menu"
-          className="absolute right-0 mt-2 w-56 overflow-hidden rounded-xl border border-slate-200 bg-white py-1 shadow-soft"
+          className="bg-card absolute right-0 mt-2 w-56 overflow-hidden rounded-xl border border-slate-200 py-1 shadow-soft"
         >
           <div className="border-b border-slate-100 px-4 py-3">
             <p className="truncate text-sm font-semibold text-slate-900">{user.name}</p>

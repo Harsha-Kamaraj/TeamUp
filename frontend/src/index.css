@@ -1,10 +1,14 @@
 @import 'tailwindcss';
 
+/* Enable a class-based dark mode: `dark:` utilities + our .dark overrides
+   apply when <html> has the `.dark` class (toggled by ThemeContext). */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /*
- * TeamUp design system — warm, vibrant & social (built for students).
+ * Squadly design system — warm, vibrant & social (built for students).
  * A signature indigo→violet→pink gradient used as the hero accent, with
- * rounded surfaces, soft depth, and colorful avatars — kept consistent so it
- * feels lively but never cluttered.
+ * rounded surfaces, soft depth, and colorful avatars. Fully theme-aware:
+ * dark mode inverts the slate palette + flips card surfaces.
  */
 @theme {
   --font-sans:
@@ -28,6 +32,44 @@
   --shadow-card: 0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 12px -4px rgba(16, 24, 40, 0.06);
   --shadow-soft: 0 18px 40px -16px rgba(99, 102, 241, 0.28), 0 8px 20px -10px rgba(16, 24, 40, 0.1);
   --shadow-pop: 0 10px 30px -8px rgba(16, 24, 40, 0.18), 0 2px 8px -2px rgba(16, 24, 40, 0.08);
+}
+
+/* ── Theme surfaces ─────────────────────────────────────────────────────────
+   Panels (cards, inputs, navbar, menus) use these instead of `bg-white` so they
+   flip in dark mode. `text-white` is left untouched so it stays white on the
+   brand gradient. */
+:root {
+  --surface: #ffffff;
+  --surface-2: #f8fafc;
+}
+.dark {
+  color-scheme: dark;
+  --surface: #0f1729;
+  --surface-2: #172033;
+
+  /* Invert the slate ramp so all text-/border-/bg-slate utilities adapt
+     automatically across every page (light text, dark borders & muted fills). */
+  --color-slate-50: #0b1120;
+  --color-slate-100: #151d2e;
+  --color-slate-200: #24304a;
+  --color-slate-300: #33415a;
+  --color-slate-400: #6b7a94;
+  --color-slate-500: #93a1b8;
+  --color-slate-600: #b3bfd2;
+  --color-slate-700: #cdd6e4;
+  --color-slate-800: #e3e9f2;
+  --color-slate-900: #f3f6fb;
+  --color-slate-950: #ffffff;
+}
+
+@utility bg-card {
+  background-color: var(--surface);
+}
+@utility bg-card-2 {
+  background-color: var(--surface-2);
+}
+@utility bg-card-blur {
+  background-color: color-mix(in srgb, var(--surface) 82%, transparent);
 }
 
 /* Signature gradient — reused across logo, buttons, avatars, accents. */
@@ -63,6 +105,14 @@
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
 }
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-8deg); }
+  75% { transform: rotate(8deg); }
+}
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}
 
 @utility animate-fade-up {
   animation: fade-up 0.6s cubic-bezier(0.22, 0.61, 0.36, 1) both;
@@ -75,6 +125,9 @@
 }
 @utility animate-blob {
   animation: blob 14s ease-in-out infinite;
+}
+@utility animate-wiggle {
+  animation: wiggle 0.5s ease-in-out;
 }
 
 /* Animated version of the signature gradient (slow shimmer). */
@@ -117,11 +170,21 @@
     background-repeat: no-repeat;
     color: var(--color-slate-600);
     font-size: 15px;
+    transition: background-color 0.3s ease;
     line-height: 1.55;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  }
+
+  /* Dark canvas — deep navy with the same colored glow, a touch stronger. */
+  .dark body {
+    background-color: #070b16;
+    background-image:
+      radial-gradient(42% 32% at 12% 0%, rgba(99, 102, 241, 0.22), transparent 62%),
+      radial-gradient(38% 30% at 100% 4%, rgba(236, 72, 153, 0.16), transparent 60%),
+      radial-gradient(46% 34% at 50% 100%, rgba(139, 92, 246, 0.16), transparent 64%);
   }
 
   h1, h2, h3, h4 {

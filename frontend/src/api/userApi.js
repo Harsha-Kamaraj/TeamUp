@@ -16,4 +16,12 @@ export const userApi = {
   },
 
   removeAvatar: () => apiClient.delete('/users/me/avatar').then((r) => r.data.data.user),
+
+  uploadResume: (file) => {
+    const form = new FormData();
+    form.append('resume', file);
+    return apiClient.post('/users/me/resume', form).then((r) => r.data.data.user);
+  },
+
+  removeResume: () => apiClient.delete('/users/me/resume').then((r) => r.data.data.user),
 };

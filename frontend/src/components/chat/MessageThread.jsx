@@ -148,7 +148,7 @@ export default function MessageThread({ conversationId, onBack }) {
                 <div
                   className={cn(
                     'max-w-[75%] rounded-2xl px-3.5 py-2 text-sm',
-                    mine ? 'bg-brand-600 text-white' : 'bg-white text-slate-800 shadow-sm'
+                    mine ? 'bg-brand-600 text-white' : 'bg-card text-slate-800 shadow-sm'
                   )}
                 >
                   <p className="whitespace-pre-wrap break-words">{m.text}</p>
@@ -169,7 +169,7 @@ export default function MessageThread({ conversationId, onBack }) {
         {/* Typing indicator */}
         {otherTyping && (
           <div className="flex justify-start">
-            <div className="rounded-2xl bg-white px-3.5 py-2 text-sm text-slate-400 shadow-sm">
+            <div className="bg-card rounded-2xl px-3.5 py-2 text-sm text-slate-400 shadow-sm">
               typing…
             </div>
           </div>
@@ -184,7 +184,7 @@ export default function MessageThread({ conversationId, onBack }) {
           value={draft}
           onChange={handleChange}
           placeholder="Type a message…"
-          className="flex-1 rounded-full border border-slate-300 bg-white px-4 py-2.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-100 focus:outline-none"
+          className="bg-card flex-1 rounded-full border border-slate-300 px-4 py-2.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-100 focus:outline-none"
         />
         <button
           type="submit"

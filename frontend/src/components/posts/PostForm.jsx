@@ -6,6 +6,9 @@ import { POST_TYPES, POST_MODES } from '@/lib/postOptions';
 
 const typeOptions = POST_TYPES.map((t) => ({ value: t.value, label: `${t.emoji} ${t.label}` }));
 
+// Today's date as YYYY-MM-DD, for the deadline min (no past dates).
+const todayStr = () => new Date().toISOString().slice(0, 10);
+
 /** Empty defaults for creating a new post. */
 export const emptyPostValues = {
   type: 'hackathon',
@@ -127,7 +130,15 @@ export default function PostForm({ defaultValues = emptyPostValues, onSubmit, su
           })}
         />
         <Select label="Work mode" options={POST_MODES} {...register('mode')} />
-        <Input label="Deadline" type="date" {...register('deadline')} />
+        <Input
+          label="Deadline"
+          type="date"
+          min={todayStr()}
+          error={errors.deadline?.message}
+          {...register('deadline', {
+            validate: (v) => !v || v >= todayStr() || 'Deadline cannot be in the past',
+          })}
+        />
       </div>
 
       <Input

@@ -54,7 +54,7 @@ export default function HomePage() {
         </div>
 
         <Container className="py-24 text-center sm:py-28">
-          <span className="animate-fade-up inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-white/80 px-3.5 py-1.5 text-[13px] font-medium text-brand-700 shadow-xs backdrop-blur-sm">
+          <span className="animate-fade-up inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-card-blur px-3.5 py-1.5 text-[13px] font-medium text-brand-700 shadow-xs backdrop-blur-sm dark:border-brand-400/40 dark:text-brand-300">
             <Sparkles className="h-3.5 w-3.5" /> Built for students, by students 🎓
           </span>
 
@@ -101,7 +101,7 @@ export default function HomePage() {
             {CATEGORIES.map(({ label, emoji }) => (
               <span
                 key={label}
-                className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white/80 px-3.5 py-1.5 text-sm text-slate-600 shadow-xs backdrop-blur-sm transition hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-sm"
+                className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-card-blur px-3.5 py-1.5 text-sm text-slate-600 shadow-xs backdrop-blur-sm transition hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-sm"
               >
                 <span aria-hidden>{emoji}</span> {label}
               </span>
@@ -111,7 +111,7 @@ export default function HomePage() {
       </section>
 
       {/* Features */}
-      <section className="border-t border-slate-200/70 bg-white/60 backdrop-blur-sm">
+      <section className="bg-card-blur border-t border-slate-200/70 backdrop-blur-sm">
         <Container className="py-20">
           <div className="mx-auto mb-14 max-w-xl text-center">
             <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">
@@ -124,7 +124,7 @@ export default function HomePage() {
             {FEATURES.map(({ Icon, emoji, title, body }, i) => (
               <div
                 key={title}
-                className="animate-fade-up rounded-2xl border border-slate-200/80 bg-white p-6 shadow-card transition duration-200 hover:-translate-y-1 hover:border-brand-200 hover:shadow-soft"
+                className="animate-fade-up bg-card rounded-2xl border border-slate-200/80 p-6 shadow-card transition duration-200 hover:-translate-y-1 hover:border-brand-200 hover:shadow-soft"
                 style={{ animationDelay: `${i * 90}ms` }}
               >
                 <div className="bg-brand-gradient grid h-11 w-11 place-items-center rounded-xl text-white shadow-sm">

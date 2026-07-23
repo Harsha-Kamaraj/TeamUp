@@ -31,8 +31,9 @@ function ensureCloudinary() {
   }
 }
 
-/** Guess an image extension from the file's magic bytes (local fallback only). */
+/** Guess a file extension from magic bytes (local fallback only). */
 function extFromBuffer(buffer) {
+  if (buffer.length >= 4 && buffer.toString('ascii', 0, 4) === '%PDF') return 'pdf';
   if (buffer.length >= 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) return 'jpg';
   if (buffer.length >= 4 && buffer[0] === 0x89 && buffer[1] === 0x50) return 'png';
   if (buffer.length >= 4 && buffer.toString('ascii', 0, 4) === 'GIF8') return 'gif';
@@ -69,40 +70,44 @@ function saveToDisk(buffer, publicId) {
  * @param {object} options  { folder, publicId }
  * @returns {Promise<{ url: string, publicId: string }>}
  */
-export function uploadImage(buffer, { folder = 'squadly/avatars', publicId } = {}) {
+export function uploadImage(buffer, { folder = 'squadly/avatars', publicId, resourceType = 'image' } = {}) {
   if (!env.cloudinary.isConfigured) {
     return Promise.resolve(saveToDisk(buffer, publicId));
   }
 
   ensureCloudinary();
+  const isImage = resourceType === 'image';
 
   return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      {
-        folder,
-        public_id: publicId,
-        resource_type: 'image',
-        overwrite: true,
-        // Normalize avatars: square, face-focused, reasonable size.
-        transformation: [
-          { width: 512, height: 512, crop: 'fill', gravity: 'face' },
-          { quality: 'auto', fetch_format: 'auto' },
-        ],
-      },
-      (error, result) => {
-        if (error) return reject(new ApiError(502, 'Image upload failed. Please try again.'));
-        resolve({ url: result.secure_url, publicId: result.public_id });
-      }
-    );
+    const options = {
+      folder,
+      public_id: publicId,
+      resource_type: isImage ? 'image' : 'raw',
+      overwrite: true,
+    };
+    if (isImage) {
+      // Normalize avatars: square, face-focused, reasonable size.
+      options.transformation = [
+        { width: 512, height: 512, crop: 'fill', gravity: 'face' },
+        { quality: 'auto', fetch_format: 'auto' },
+      ];
+    } else {
+      options.format = 'pdf';
+    }
+
+    const stream = cloudinary.uploader.upload_stream(options, (error, result) => {
+      if (error) return reject(new ApiError(502, 'Upload failed. Please try again.'));
+      resolve({ url: result.secure_url, publicId: result.public_id });
+    });
     stream.end(buffer);
   });
 }
 
-/** Delete an image by its public_id. Best-effort — never throws. */
-export async function deleteImage(publicId) {
+/** Delete an uploaded file by its public_id. Best-effort — never throws. */
+export async function deleteImage(publicId, { resourceType = 'image' } = {}) {
   if (!publicId) return;
 
-  // Local-disk fallback images are tagged with a "local:" prefix.
+  // Local-disk fallback files are tagged with a "local:" prefix.
   if (publicId.startsWith('local:')) {
     try {
       fs.unlinkSync(path.join(UPLOADS_DIR, publicId.slice('local:'.length)));
@@ -115,7 +120,9 @@ export async function deleteImage(publicId) {
   if (!env.cloudinary.isConfigured) return;
   try {
     ensureCloudinary();
-    await cloudinary.uploader.destroy(publicId);
+    await cloudinary.uploader.destroy(publicId, {
+      resource_type: resourceType === 'image' ? 'image' : 'raw',
+    });
   } catch {
     // Ignore deletion failures (e.g. already gone).
   }

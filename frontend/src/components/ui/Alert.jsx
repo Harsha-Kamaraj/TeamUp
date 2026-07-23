@@ -5,9 +5,10 @@ import { cn } from '@/utils/cn';
  * variant: 'error' | 'success' | 'info'
  */
 const VARIANTS = {
-  error: 'border-red-200 bg-red-50 text-red-700',
-  success: 'border-emerald-200 bg-emerald-50 text-emerald-700',
-  info: 'border-brand-200 bg-brand-50 text-brand-700',
+  error: 'border-red-200 bg-red-50 text-red-700 dark:border-red-500/25 dark:bg-red-500/10 dark:text-red-300',
+  success:
+    'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-300',
+  info: 'border-brand-200 bg-brand-50 text-brand-700 dark:border-brand-500/25 dark:bg-brand-500/10 dark:text-brand-300',
 };
 
 const ICONS = { error: '⚠️', success: '✅', info: 'ℹ️' };

@@ -8,6 +8,7 @@ import { cn } from '@/utils/cn';
 import Logo from './Logo';
 import UserMenu from './UserMenu';
 import NotificationBell from './NotificationBell';
+import ThemeToggle from './ThemeToggle';
 
 // Primary nav links.
 const NAV_LINKS = [{ label: 'Your Feed', to: '/browse' }];
@@ -51,7 +52,7 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 backdrop-blur-sm">
+    <header className="bg-card-blur sticky top-0 z-40 border-b border-slate-200 backdrop-blur-md">
       <Container className="flex h-14 items-center justify-between gap-4">
         <div className="flex items-center gap-6">
           <Logo />
@@ -76,6 +77,7 @@ export default function Navbar() {
         {/* Auth-aware actions. Render nothing while the session is resolving to
             avoid a flash of the wrong state. */}
         <div className="flex items-center gap-1.5">
+          <ThemeToggle />
           {isLoading ? null : isAuthenticated ? (
             <>
               <NotificationBell />

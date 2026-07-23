@@ -20,7 +20,7 @@ export default function MyPostsPage() {
 
   return (
     <Container className="py-10">
-      <div className="mb-6 flex items-center justify-between">
+      <div className="animate-fade-up mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold text-slate-900">My posts 📢</h1>
         <Link to="/posts/new">
           <Button>

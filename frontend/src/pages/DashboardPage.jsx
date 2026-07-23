@@ -1,53 +1,12 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Megaphone, HandHeart, Star, MessageSquare, Plus } from 'lucide-react';
-import { authApi } from '@/api/authApi';
 import { dashboardApi } from '@/api/dashboardApi';
 import { conversationApi } from '@/api/conversationApi';
 import { useAuth } from '@/contexts/AuthContext';
-import { Alert, Avatar, Button, Card, Container } from '@/components/ui';
+import { Avatar, Button, Card, Container } from '@/components/ui';
 import StatCard from '@/components/dashboard/StatCard';
 import MessageButton from '@/components/chat/MessageButton';
-import { getErrorMessage } from '@/utils/getErrorMessage';
-
-function VerifyEmailBanner() {
-  const [state, setState] = useState('idle'); // idle | sending | sent | error
-  const [error, setError] = useState('');
-
-  const resend = async () => {
-    setState('sending');
-    setError('');
-    try {
-      await authApi.resendVerification();
-      setState('sent');
-    } catch (err) {
-      setState('error');
-      setError(getErrorMessage(err));
-    }
-  };
-
-  if (state === 'sent') {
-    return (
-      <Alert variant="success">
-        Verification email sent — check your inbox (or the server console in development).
-      </Alert>
-    );
-  }
-
-  return (
-    <div className="flex flex-col gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 sm:flex-row sm:items-center sm:justify-between">
-      <div className="text-sm text-amber-800">
-        <p className="font-semibold">Please verify your email address.</p>
-        <p>Some features stay locked until you confirm your email.</p>
-        {state === 'error' && <p className="mt-1 text-red-600">{error}</p>}
-      </div>
-      <Button variant="secondary" size="sm" loading={state === 'sending'} onClick={resend}>
-        Resend email
-      </Button>
-    </div>
-  );
-}
 
 function RecentActivity({ interests }) {
   return (
@@ -102,18 +61,12 @@ export default function DashboardPage() {
 
   return (
     <Container className="py-10">
-      <div className="mb-6">
+      <div className="animate-fade-up mb-6">
         <h1 className="text-2xl font-bold text-slate-900">
           Welcome{user?.name ? `, ${user.name.split(' ')[0]}` : ''} 👋
         </h1>
         <p className="mt-1 text-slate-500">Here&apos;s what&apos;s happening with your team-building.</p>
       </div>
-
-      {user && !user.isEmailVerified && (
-        <div className="mb-6">
-          <VerifyEmailBanner />
-        </div>
-      )}
 
       {/* Stats */}
       <div className="mb-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -159,12 +112,6 @@ export default function DashboardPage() {
           </div>
 
           <dl className="mt-4 space-y-2 text-sm">
-            <div className="flex justify-between">
-              <dt className="text-slate-500">Email</dt>
-              <dd className={user?.isEmailVerified ? 'font-medium text-emerald-600' : 'font-medium text-amber-600'}>
-                {user?.isEmailVerified ? 'Verified' : 'Unverified'}
-              </dd>
-            </div>
             {memberSince && (
               <div className="flex justify-between">
                 <dt className="text-slate-500">Member since</dt>

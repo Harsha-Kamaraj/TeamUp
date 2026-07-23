@@ -52,7 +52,7 @@ export default function TagInput({
       )}
       <div
         className={cn(
-          'flex flex-wrap items-center gap-2 rounded-xl border border-slate-300 bg-white px-2.5 py-2 shadow-sm',
+          'bg-card flex flex-wrap items-center gap-2 rounded-xl border border-slate-300 px-2.5 py-2 shadow-sm',
           'focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-100'
         )}
       >

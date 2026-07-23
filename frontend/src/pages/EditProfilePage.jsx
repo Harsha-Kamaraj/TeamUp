@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useForm, useFieldArray, Controller } from 'react-hook-form';
+import { FileText } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { userApi } from '@/api/userApi';
 import {
@@ -85,6 +86,73 @@ function AvatarField() {
   );
 }
 
+/** Resume upload/remove (PDF) — updates the auth context user directly. */
+function ResumeField() {
+  const { user, updateCurrentUser } = useAuth();
+  const fileRef = useRef(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+
+  const onFile = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setBusy(true);
+    setError('');
+    try {
+      updateCurrentUser(await userApi.uploadResume(file));
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setBusy(false);
+      e.target.value = '';
+    }
+  };
+
+  const onRemove = async () => {
+    setBusy(true);
+    setError('');
+    try {
+      updateCurrentUser(await userApi.removeResume());
+    } catch (err) {
+      setError(getErrorMessage(err));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <SectionCard title="Resume" description="Upload your resume as a PDF (up to 5 MB).">
+      <div className="flex flex-wrap items-center gap-3">
+        {user.resumeUrl ? (
+          <a href={user.resumeUrl} target="_blank" rel="noreferrer noopener">
+            <Button type="button" variant="outline" size="sm">
+              <FileText className="h-4 w-4" /> View current resume
+            </Button>
+          </a>
+        ) : (
+          <span className="text-sm text-slate-500">No resume uploaded yet.</span>
+        )}
+        <Button
+          type="button"
+          variant="secondary"
+          size="sm"
+          loading={busy}
+          onClick={() => fileRef.current?.click()}
+        >
+          {user.resumeUrl ? 'Replace PDF' : 'Upload PDF'}
+        </Button>
+        {user.resumeUrl && (
+          <Button type="button" variant="ghost" size="sm" disabled={busy} onClick={onRemove}>
+            Remove
+          </Button>
+        )}
+        <input ref={fileRef} type="file" accept="application/pdf" hidden onChange={onFile} />
+      </div>
+      {error && <Alert variant="error">{error}</Alert>}
+    </SectionCard>
+  );
+}
+
 export default function EditProfilePage() {
   const { user, updateCurrentUser } = useAuth();
   const [status, setStatus] = useState({ type: '', msg: '' });
@@ -109,7 +177,6 @@ export default function EditProfilePage() {
         github: user.links?.github ?? '',
         linkedin: user.links?.linkedin ?? '',
         portfolio: user.links?.portfolio ?? '',
-        resume: user.links?.resume ?? '',
       },
       projects: user.projects ?? [],
     },
@@ -225,9 +292,11 @@ export default function EditProfilePage() {
             <Input label="GitHub" placeholder="https://github.com/you" error={errors.links?.github?.message} {...register('links.github')} />
             <Input label="LinkedIn" placeholder="https://linkedin.com/in/you" {...register('links.linkedin')} />
             <Input label="Portfolio" placeholder="https://you.dev" {...register('links.portfolio')} />
-            <Input label="Resume" placeholder="Link to your resume" {...register('links.resume')} />
           </div>
         </SectionCard>
+
+        {/* Resume (PDF upload) */}
+        <ResumeField />
 
         {/* Projects */}
         <SectionCard title="Projects" description="Highlight things you've built.">

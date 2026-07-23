@@ -10,8 +10,8 @@ import Spinner from './Spinner';
 const VARIANTS = {
   primary:
     'bg-brand-gradient text-white shadow-sm transition-[filter,box-shadow] hover:brightness-[1.06] hover:shadow-md',
-  secondary: 'border border-slate-200 bg-white text-slate-700 shadow-xs hover:bg-slate-50 hover:border-slate-300',
-  outline: 'border border-slate-200 bg-white text-slate-700 shadow-xs hover:bg-slate-50 hover:border-slate-300',
+  secondary: 'bg-card border border-slate-200 text-slate-700 shadow-xs hover:bg-slate-50 hover:border-slate-300',
+  outline: 'bg-card border border-slate-200 text-slate-700 shadow-xs hover:bg-slate-50 hover:border-slate-300',
   ghost: 'text-slate-600 hover:bg-slate-100 hover:text-slate-900',
   danger: 'bg-red-600 text-white shadow-sm hover:bg-red-700 active:bg-red-800',
 };
@@ -38,8 +38,8 @@ export default function Button({
       type={type}
       disabled={disabled || loading}
       className={cn(
-        'inline-flex items-center justify-center rounded-xl font-semibold whitespace-nowrap transition-colors',
-        'focus-visible:outline-brand-600 disabled:cursor-not-allowed disabled:opacity-50',
+        'inline-flex items-center justify-center rounded-xl font-semibold whitespace-nowrap transition active:scale-[0.97]',
+        'focus-visible:outline-brand-600 disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100',
         VARIANTS[variant],
         SIZES[size],
         fullWidth && 'w-full',

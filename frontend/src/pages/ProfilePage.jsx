@@ -11,7 +11,6 @@ const LINK_META = {
   github: { label: 'GitHub', Icon: Code2 },
   linkedin: { label: 'LinkedIn', Icon: Briefcase },
   portfolio: { label: 'Portfolio', Icon: Globe },
-  resume: { label: 'Resume', Icon: FileText },
 };
 
 function Section({ title, children }) {
@@ -62,13 +61,13 @@ export default function ProfilePage() {
   }
 
   const availability = AVAILABILITY[user.availability] ?? AVAILABILITY.available;
-  const activeLinks = Object.entries(user.links ?? {}).filter(([, v]) => v);
+  const activeLinks = Object.entries(user.links ?? {}).filter(([k, v]) => v && k !== 'resume');
   const meta = [user.college, user.department, user.year].filter(Boolean).join(' · ');
 
   return (
     <Container className="py-10">
       {/* Header */}
-      <Card className="p-6 sm:p-8">
+      <Card className="animate-fade-up p-6 sm:p-8">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start">
           <Avatar name={user.name} src={user.avatar} size="xl" />
           <div className="flex-1">
@@ -82,7 +81,7 @@ export default function ProfilePage() {
             </p>
             {user.bio && <p className="mt-4 leading-relaxed text-slate-700">{user.bio}</p>}
 
-            {activeLinks.length > 0 && (
+            {(activeLinks.length > 0 || user.resumeUrl) && (
               <div className="mt-4 flex flex-wrap gap-2">
                 {activeLinks.map(([key, url]) => {
                   const LinkIcon = LINK_META[key]?.Icon;
@@ -95,6 +94,13 @@ export default function ProfilePage() {
                     </a>
                   );
                 })}
+                {user.resumeUrl && (
+                  <a href={user.resumeUrl} target="_blank" rel="noreferrer noopener">
+                    <Button variant="outline" size="sm">
+                      <FileText className="h-4 w-4" /> Resume
+                    </Button>
+                  </a>
+                )}
               </div>
             )}
           </div>

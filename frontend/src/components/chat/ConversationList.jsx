@@ -34,13 +34,13 @@ export default function ConversationList({ activeId }) {
                 to={`/chat/${c.id}`}
                 className={cn(
                   'flex items-center gap-3 px-4 py-3 transition-colors hover:bg-slate-50',
-                  activeId === c.id && 'bg-brand-50'
+                  activeId === c.id && 'bg-brand-50 dark:bg-brand-500/15'
                 )}
               >
                 <div className="relative shrink-0">
                   <Avatar name={c.other?.name} src={c.other?.avatar} size="md" />
                   {c.other && isOnline(c.other.id) && (
-                    <span className="absolute right-0 bottom-0 h-3 w-3 rounded-full border-2 border-white bg-emerald-500" />
+                    <span className="absolute right-0 bottom-0 h-3 w-3 rounded-full border-2 border-[color:var(--surface)] bg-emerald-500" />
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
