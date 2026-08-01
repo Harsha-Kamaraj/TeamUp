@@ -91,6 +91,15 @@ const env = {
     },
   },
 
+  // ── Google Sign-In ──────────────────────────────────────────────────────
+  // Only the OAuth *client id* is needed: the browser obtains an ID token via
+  // Google Identity Services and we verify its signature and audience here.
+  // No client secret, no redirect/callback route. Optional — when unset, the
+  // Google button is hidden and the endpoint returns a clear error.
+  google: {
+    clientId: read('GOOGLE_CLIENT_ID', { fallback: undefined }),
+  },
+
   // ── Image upload — Cloudinary (Phase 5) ─────────────────────────────────
   // Optional: if unset, avatar upload is disabled with a clear message and
   // the rest of the app works fine.
