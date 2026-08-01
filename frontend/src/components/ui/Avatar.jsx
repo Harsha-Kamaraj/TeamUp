@@ -13,6 +13,8 @@ function initialsOf(name = '') {
 }
 
 const SIZES = {
+  // xs is sized for inline use beside chat bubbles.
+  xs: 'h-7 w-7 text-[11px]',
   sm: 'h-9 w-9 text-sm',
   md: 'h-12 w-12 text-base',
   lg: 'h-20 w-20 text-2xl',
