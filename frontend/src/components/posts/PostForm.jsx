@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { Alert, Button, Input, Select, Textarea, TagInput } from '@/components/ui';
-import { getErrorMessage } from '@/utils/getErrorMessage';
+import VerifyEmailNotice from '@/components/auth/VerifyEmailNotice';
+import { getErrorMessage, needsEmailVerification } from '@/utils/getErrorMessage';
 import { POST_TYPES, POST_MODES } from '@/lib/postOptions';
 
 const typeOptions = POST_TYPES.map((t) => ({ value: t.value, label: `${t.emoji} ${t.label}` }));
@@ -52,7 +53,12 @@ export default function PostForm({ defaultValues = emptyPostValues, onSubmit, su
 
   return (
     <form onSubmit={handleSubmit(submit)} className="space-y-5" noValidate>
-      {formError && <Alert variant="error">{formError}</Alert>}
+      {formError &&
+        (needsEmailVerification(formError) ? (
+          <VerifyEmailNotice message={formError} />
+        ) : (
+          <Alert variant="error">{formError}</Alert>
+        ))}
 
       <div className="grid gap-5 sm:grid-cols-2">
         <Select label="Type" options={typeOptions} {...register('type')} />
