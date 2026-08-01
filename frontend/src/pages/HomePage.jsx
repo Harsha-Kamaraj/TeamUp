@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import {
   ArrowRight,
   Search,
@@ -40,7 +40,14 @@ const FEATURES = [
 ];
 
 export default function HomePage() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  // The landing page sells the product to strangers. Someone already signed in
+  // wants their feed, so "/" takes them straight there — including when they
+  // click the logo. Waiting for `isLoading` avoids flashing the hero for a
+  // moment while the session is restored.
+  if (isLoading) return null;
+  if (isAuthenticated) return <Navigate to="/browse" replace />;
 
   return (
     <div>
@@ -72,7 +79,7 @@ export default function HomePage() {
               <>
                 <Link to="/browse">
                   <Button size="lg">
-                    Go to Your Feed <ArrowRight className="h-4 w-4" />
+                    Go to your feed <ArrowRight className="h-4 w-4" />
                   </Button>
                 </Link>
                 <Link to="/posts/new">
@@ -155,7 +162,7 @@ export default function HomePage() {
                 size="lg"
                 className="bg-white text-brand-700 shadow-sm hover:bg-brand-50 hover:brightness-100"
               >
-                {isAuthenticated ? 'Explore Your Feed' : 'Create your free account'}{' '}
+                {isAuthenticated ? 'Explore the feed' : 'Create your free account'}{' '}
                 <ArrowRight className="h-4 w-4" />
               </Button>
             </Link>

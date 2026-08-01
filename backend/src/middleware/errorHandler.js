@@ -30,15 +30,26 @@ export default function errorHandler(err, req, res, next) {
     statusCode = 400;
     message = `Invalid ${err.path}: ${err.value}`;
   } else if (err.code === 11000) {
-    // Duplicate key (unique index violation)
+    // Duplicate key (unique index violation). Only surface the field name when
+    // it's something the user actually typed — internal keys like `pairKey`
+    // mean nothing to them and leak schema details.
     statusCode = 409;
-    const field = Object.keys(err.keyValue || {})[0] ?? 'field';
-    message = `That ${field} is already in use`;
+    const field = Object.keys(err.keyValue || {})[0];
+    const USER_FACING = { email: 'email', name: 'name', title: 'title' };
+    message = USER_FACING[field]
+      ? `That ${USER_FACING[field]} is already in use`
+      : 'That already exists.';
+    logger.warn(`Duplicate key on "${field}" — ${JSON.stringify(err.keyValue)}`);
   } else if (err.name === 'MulterError') {
-    // File upload issues (e.g. too large, unexpected field)
+    // File upload issues (e.g. too large, unexpected field). The size cap
+    // differs per upload, so report the one that actually applied rather than
+    // a single hardcoded number.
     statusCode = 400;
+    const LIMIT_MB = { avatar: 2, resume: 5, file: 8 };
     message =
-      err.code === 'LIMIT_FILE_SIZE' ? 'File is too large (max 2 MB)' : `Upload error: ${err.message}`;
+      err.code === 'LIMIT_FILE_SIZE'
+        ? `File is too large (max ${LIMIT_MB[err.field] ?? 8} MB)`
+        : `Upload error: ${err.message}`;
   }
 
   // Log server-side. 5xx are real problems; 4xx are expected client errors.

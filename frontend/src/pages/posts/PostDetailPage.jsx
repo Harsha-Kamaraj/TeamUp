@@ -9,8 +9,9 @@ import { Users, MapPin, CalendarDays, HandHeart } from 'lucide-react';
 import MessageButton from '@/components/chat/MessageButton';
 import BookmarkButton from '@/components/posts/BookmarkButton';
 import TeamPanel from '@/components/posts/TeamPanel';
+import VerifyEmailNotice from '@/components/auth/VerifyEmailNotice';
 import { postTypeMeta, POST_MODE_MAP } from '@/lib/postOptions';
-import { getErrorMessage } from '@/utils/getErrorMessage';
+import { getErrorMessage, needsEmailVerification } from '@/utils/getErrorMessage';
 
 const formatDate = (d) =>
   d ? new Date(d).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' }) : null;
@@ -289,7 +290,11 @@ export default function PostDetailPage() {
         <div className="mt-8 border-t border-slate-100 pt-6">
           {actionError && (
             <div className="mb-4">
-              <Alert variant="error">{actionError}</Alert>
+              {needsEmailVerification(actionError) ? (
+                <VerifyEmailNotice message={actionError} />
+              ) : (
+                <Alert variant="error">{actionError}</Alert>
+              )}
             </div>
           )}
 

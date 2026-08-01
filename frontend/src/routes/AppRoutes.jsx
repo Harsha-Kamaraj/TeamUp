@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 import RootLayout from '@/components/layout/RootLayout';
 import ProtectedRoute from './ProtectedRoute';
 import GuestRoute from './GuestRoute';
@@ -14,8 +15,7 @@ const HomePage = lazy(() => import('@/pages/HomePage'));
 const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 const BrowsePage = lazy(() => import('@/pages/BrowsePage'));
 const DashboardPage = lazy(() => import('@/pages/DashboardPage'));
-const MyInterestsPage = lazy(() => import('@/pages/MyInterestsPage'));
-const SavedPostsPage = lazy(() => import('@/pages/SavedPostsPage'));
+const MyLibraryPage = lazy(() => import('@/pages/MyLibraryPage'));
 const ChatPage = lazy(() => import('@/pages/ChatPage'));
 const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
 const EditProfilePage = lazy(() => import('@/pages/EditProfilePage'));
@@ -69,8 +69,11 @@ export default function AppRoutes() {
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="settings/profile" element={<EditProfilePage />} />
             <Route path="my-posts" element={<MyPostsPage />} />
-            <Route path="my-interests" element={<MyInterestsPage />} />
-            <Route path="saved" element={<SavedPostsPage />} />
+            {/* Interests + saved merged into one tabbed page. The old paths
+                redirect so existing links and bookmarks keep working. */}
+            <Route path="library" element={<MyLibraryPage />} />
+            <Route path="my-interests" element={<Navigate to="/library" replace />} />
+            <Route path="saved" element={<Navigate to="/library?tab=saved" replace />} />
             <Route path="chat" element={<ChatPage />} />
             <Route path="chat/:conversationId" element={<ChatPage />} />
             <Route path="posts/new" element={<CreatePostPage />} />

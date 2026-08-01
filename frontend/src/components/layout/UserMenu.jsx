@@ -38,6 +38,11 @@ export default function UserMenu({ user, onLogout }) {
     };
   }, [open]);
 
+  // Defensive: callers shouldn't mount this without a user, but rendering
+  // nothing is far better than throwing and taking the app down with it.
+  // Placed after the hooks so hook order stays identical on every render.
+  if (!user) return null;
+
   return (
     <div className="relative" ref={menuRef}>
       <button
@@ -85,22 +90,26 @@ export default function UserMenu({ user, onLogout }) {
           >
             My posts
           </Link>
+          {/* The header icon is hidden on large screens, so keep a route here
+              for pages that don't render the feed's left rail. */}
           <Link
-            to="/my-interests"
+            to="/chat"
             role="menuitem"
             onClick={() => setOpen(false)}
             className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50"
           >
-            My interests
+            Messages
           </Link>
+          {/* "Interested" and "Saved" are tabs of one page now. */}
           <Link
-            to="/saved"
+            to="/library"
             role="menuitem"
             onClick={() => setOpen(false)}
             className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50"
           >
-            Saved
+            My library
           </Link>
+          {/* Editing lives on the profile page itself, so no separate entry. */}
           <Link
             to={`/profile/${user.id}`}
             role="menuitem"
@@ -108,14 +117,6 @@ export default function UserMenu({ user, onLogout }) {
             className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50"
           >
             My profile
-          </Link>
-          <Link
-            to="/settings/profile"
-            role="menuitem"
-            onClick={() => setOpen(false)}
-            className="block px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50"
-          >
-            Edit profile
           </Link>
 
           <button

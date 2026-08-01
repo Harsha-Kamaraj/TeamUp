@@ -20,10 +20,10 @@ function LinkedInIcon(props) {
 }
 
 const EXPLORE_LINKS = [
-  { label: 'Your Feed', to: '/browse' },
+  { label: 'Feed', to: '/browse' },
   { label: 'Create post', to: '/posts/new' },
   { label: 'Dashboard', to: '/dashboard' },
-  { label: 'Saved posts', to: '/saved' },
+  { label: 'My library', to: '/library' },
 ];
 
 const CREATORS = [
@@ -53,61 +53,51 @@ function SocialLink({ href, label, children }) {
   );
 }
 
+/**
+ * Footer — one compact bar pinned to the bottom of the shell.
+ *
+ * Deliberately slim: this was a three-column grid with a tagline and stacked
+ * link lists, which ate ~300px and kept intruding on short pages. Everything
+ * that earned its place is here on a single line, wrapping on narrow screens.
+ */
 export default function Footer() {
   return (
     <footer className="bg-card-blur mt-auto border-t border-slate-200">
-      <Container className="py-14">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-12">
-          {/* Brand + tagline */}
-          <div className="lg:col-span-5">
-            <Logo />
-            <p className="mt-4 max-w-xs text-sm leading-relaxed text-slate-500">
-              Find your squad for hackathons, research, startups, competitions, fests, and more —
-              so you never have to build alone. 💜
-            </p>
-          </div>
-
-          {/* Explore */}
-          <div className="lg:col-span-3">
-            <h3 className="text-xs font-semibold tracking-wider text-slate-500 uppercase">Explore</h3>
-            <ul className="mt-4 space-y-3">
-              {EXPLORE_LINKS.map((link) => (
-                <li key={link.to}>
-                  <Link
-                    to={link.to}
-                    className="text-sm text-slate-600 transition-colors hover:text-brand-700"
-                  >
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Created by */}
-          <div className="lg:col-span-4">
-            <h3 className="text-xs font-semibold tracking-wider text-slate-500 uppercase">
-              Created by
-            </h3>
-            <ul className="mt-4 space-y-3">
-              {CREATORS.map((person) => (
-                <li key={person.name} className="flex items-center gap-3">
-                  <span className="text-sm font-semibold text-slate-800">{person.name}</span>
-                  <SocialLink href={person.github} label={`${person.name} on GitHub`}>
-                    <GitHubIcon className="h-4 w-4" />
-                  </SocialLink>
-                  <SocialLink href={person.linkedin} label={`${person.name} on LinkedIn`}>
-                    <LinkedInIcon className="h-[18px] w-[18px]" />
-                  </SocialLink>
-                </li>
-              ))}
-            </ul>
-          </div>
+      <Container className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 py-4">
+        {/* Brand + copyright */}
+        <div className="flex items-center gap-2.5">
+          <Logo />
+          <span className="hidden text-xs text-slate-400 sm:inline">
+            © {new Date().getFullYear()} · Built for students, by students.
+          </span>
         </div>
 
-        {/* Bottom bar */}
-        <div className="mt-12 border-t border-slate-100 pt-6 text-center text-sm text-slate-400 sm:text-left">
-          © {new Date().getFullYear()} Squadly · Built for students, by students.
+        {/* Explore */}
+        <nav className="flex flex-wrap items-center gap-x-4 gap-y-1">
+          {EXPLORE_LINKS.map((link) => (
+            <Link
+              key={link.to}
+              to={link.to}
+              className="text-xs text-slate-500 transition-colors hover:text-brand-600"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+
+        {/* Created by */}
+        <div className="flex items-center gap-4">
+          {CREATORS.map((person) => (
+            <span key={person.name} className="flex items-center gap-1.5">
+              <span className="text-xs font-medium text-slate-500">{person.name}</span>
+              <SocialLink href={person.github} label={`${person.name} on GitHub`}>
+                <GitHubIcon className="h-3.5 w-3.5" />
+              </SocialLink>
+              <SocialLink href={person.linkedin} label={`${person.name} on LinkedIn`}>
+                <LinkedInIcon className="h-3.5 w-3.5" />
+              </SocialLink>
+            </span>
+          ))}
         </div>
       </Container>
     </footer>
