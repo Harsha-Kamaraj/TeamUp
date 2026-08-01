@@ -1,14 +1,15 @@
+import mongoose from 'mongoose';
+
 import Post, { POST_TYPES, POST_MODES } from '../models/Post.js';
 import Interest from '../models/Interest.js';
 import ApiError from '../utils/ApiError.js';
 import ApiResponse from '../utils/ApiResponse.js';
 import asyncHandler from '../utils/asyncHandler.js';
+import escapeRegex from '../utils/escapeRegex.js';
 
 // Author fields to include when returning a post (for display).
-const AUTHOR_FIELDS = 'name avatar college department';
-
-// Escape user input before using it in a RegExp (prevents regex injection).
-const escapeRegex = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+// `year` is included so feed cards can show "College · 3rd Year" under the lead.
+const AUTHOR_FIELDS = 'name avatar college department year';
 
 /**
  * GET /posts   (public)
@@ -20,12 +21,18 @@ const escapeRegex = (s) => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
  *   type                  — one of the POST_TYPES (category)
  *   mode                  — remote | offline | hybrid
  *   skill, tag            — exact (case-insensitive) match within arrays
+ *   author                — that student's open opportunities
  */
 export const listPosts = asyncHandler(async (req, res) => {
   const page = Math.max(1, parseInt(req.query.page, 10) || 1);
   const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 12));
 
   const filter = { status: 'open' };
+
+  // Lets a profile page (or a person search) show one student's postings.
+  if (req.query.author && mongoose.isValidObjectId(req.query.author)) {
+    filter.author = req.query.author;
+  }
 
   // Structured filters (whitelisted against the enums).
   if (req.query.type && POST_TYPES.includes(req.query.type)) filter.type = req.query.type;

@@ -7,6 +7,10 @@ import apiClient from './axiosClient';
 export const userApi = {
   getProfile: (id) => apiClient.get(`/users/${id}`).then((r) => r.data.data.user),
 
+  // Find students by name, college, or skill.
+  search: (search) =>
+    apiClient.get('/users', { params: { search } }).then((r) => r.data.data.users),
+
   updateProfile: (data) => apiClient.patch('/users/me', data).then((r) => r.data.data.user),
 
   uploadAvatar: (file) => {
