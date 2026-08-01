@@ -16,7 +16,7 @@ function RecentActivity({ interests }) {
       </h2>
       {interests.length === 0 ? (
         <p className="mt-4 text-sm text-slate-400">
-          No one has expressed interest yet. Share your posts to get noticed! ✨
+          No one has expressed interest yet. Share your posts to get noticed.
         </p>
       ) : (
         <ul className="mt-4 space-y-4">
@@ -72,7 +72,7 @@ export default function DashboardPage() {
       <div className="mb-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard icon={Megaphone} label="My posts" value={val(stats?.postsCount)} to="/my-posts" />
         <StatCard icon={HandHeart} label="Interests received" value={val(stats?.interestsReceived)} to="/my-posts" />
-        <StatCard icon={Star} label="Interests sent" value={val(stats?.interestsSent)} to="/my-interests" />
+        <StatCard icon={Star} label="Interests sent" value={val(stats?.interestsSent)} to="/library" />
         <StatCard icon={MessageSquare} label="Unread messages" value={conversations ? unread : '—'} to="/chat" />
       </div>
 
@@ -85,10 +85,10 @@ export default function DashboardPage() {
         </Link>
         <Link to="/browse">
           <Button size="lg" variant="outline">
-            Explore Your Feed
+            Explore the feed
           </Button>
         </Link>
-        <Link to="/saved">
+        <Link to="/library?tab=saved">
           <Button size="lg" variant="outline">
             Saved
           </Button>

@@ -21,7 +21,7 @@ export default function MyPostsPage() {
   return (
     <Container className="py-10">
       <div className="animate-fade-up mb-6 flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-slate-900">My posts 📢</h1>
+        <h1 className="text-2xl font-bold text-slate-900">My posts</h1>
         <Link to="/posts/new">
           <Button>
             <Plus className="h-4 w-4" /> Create post
@@ -51,7 +51,7 @@ export default function MyPostsPage() {
       )}
 
       {posts && posts.length > 0 && (
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="mx-auto max-w-2xl space-y-5">
           {posts.map((post) => (
             <PostCard
               key={post.id}
