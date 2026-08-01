@@ -15,7 +15,9 @@ router.delete('/me/avatar', protect, userController.removeMyAvatar);
 router.post('/me/resume', protect, uploadResume, userController.uploadMyResume);
 router.delete('/me/resume', protect, userController.removeMyResume);
 
-// ── Public: view a profile (email/last-login hidden in the controller) ────
+// ── Public: find students, then view a profile ────────────────────────────
+// "/" must come before "/:id" so a search isn't read as an id.
+router.get('/', userController.searchUsers);
 router.get('/:id', userController.getProfileById);
 
 export default router;

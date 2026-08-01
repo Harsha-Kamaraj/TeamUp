@@ -60,7 +60,7 @@ export default function NotificationBell() {
       >
         <Bell className="h-5 w-5" />
         {unread > 0 && (
-          <span className="absolute top-0.5 right-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-brand-600 px-1 text-[10px] font-bold text-white ring-2 ring-white">
+          <span className="absolute top-0.5 right-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-brand-600 px-1 text-[10px] font-bold text-white ring-2 ring-(--surface)">
             {unread > 9 ? '9+' : unread}
           </span>
         )}
@@ -96,8 +96,11 @@ export default function NotificationBell() {
                   type="button"
                   onClick={() => openNotification(n)}
                   className={cn(
-                    'flex w-full items-start gap-3 border-b border-slate-50 px-4 py-3 text-left transition-colors hover:bg-slate-50',
-                    !n.read && 'bg-brand-50/60'
+                    'flex w-full items-start gap-3 border-b border-slate-100 px-4 py-3 text-left transition-colors hover:bg-slate-100',
+                    // brand-50 is a pale indigo that isn't inverted for dark
+                    // mode, so it rendered as a washed-out grey block. Use a
+                    // translucent brand tint that works on either surface.
+                    !n.read && 'bg-brand-500/10'
                   )}
                 >
                   {n.actor ? (

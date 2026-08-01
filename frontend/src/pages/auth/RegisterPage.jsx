@@ -2,14 +2,18 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useAuth } from '@/contexts/AuthContext';
-import AuthCard from '@/components/auth/AuthCard';
+import AuthLayout from '@/components/auth/AuthLayout';
+import GoogleSignInButton from '@/components/auth/GoogleSignInButton';
+import { config } from '@/lib/config';
 import { Alert, Button, Input } from '@/components/ui';
 import { getErrorMessage } from '@/utils/getErrorMessage';
 
 export default function RegisterPage() {
-  const { register: registerUser } = useAuth();
+  const { register: registerUser, loginWithGoogle } = useAuth();
   const navigate = useNavigate();
   const [formError, setFormError] = useState('');
+  const [googleBusy, setGoogleBusy] = useState(false);
+  const [agreed, setAgreed] = useState(false);
 
   const {
     register,
@@ -22,17 +26,30 @@ export default function RegisterPage() {
     setFormError('');
     try {
       await registerUser({ name, email, password });
-      navigate('/dashboard', { replace: true });
+      navigate('/browse', { replace: true });
     } catch (error) {
       setFormError(getErrorMessage(error, 'Unable to create your account. Please try again.'));
     }
   };
 
+  const onGoogle = async (credential) => {
+    setFormError('');
+    setGoogleBusy(true);
+    try {
+      await loginWithGoogle(credential);
+      navigate('/browse', { replace: true });
+    } catch (error) {
+      setFormError(getErrorMessage(error, 'Google sign-up failed. Please try again.'));
+    } finally {
+      setGoogleBusy(false);
+    }
+  };
+
   return (
-    <AuthCard
-      title="Create your account"
-      subtitle="Join Squadly and start building with others 🚀"
-      footer={
+    <AuthLayout
+      slide={2}
+      title="Create an account"
+      subtitle={
         <>
           Already have an account?{' '}
           <Link to="/login" className="font-semibold text-brand-600 hover:text-brand-700">
@@ -96,10 +113,42 @@ export default function RegisterPage() {
           })}
         />
 
-        <Button type="submit" fullWidth size="lg" loading={isSubmitting}>
+        <label className="flex cursor-pointer items-start gap-2.5 text-sm text-slate-600">
+          <input
+            type="checkbox"
+            checked={agreed}
+            onChange={(e) => setAgreed(e.target.checked)}
+            className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-slate-300 accent-brand-600"
+          />
+          <span>
+            I agree to the{' '}
+            <Link to="/" className="font-medium text-brand-600 underline hover:text-brand-700">
+              Terms &amp; Conditions
+            </Link>
+          </span>
+        </label>
+
+        <Button
+          type="submit"
+          fullWidth
+          size="lg"
+          disabled={!agreed}
+          loading={isSubmitting || googleBusy}
+        >
           Create account
         </Button>
       </form>
-    </AuthCard>
+
+      {config.googleClientId && (
+        <>
+          <div className="my-6 flex items-center gap-3">
+            <span className="h-px flex-1 bg-slate-200" />
+            <span className="text-[13px] text-slate-500">Or register with</span>
+            <span className="h-px flex-1 bg-slate-200" />
+          </div>
+          <GoogleSignInButton onCredential={onGoogle} text="signup_with" />
+        </>
+      )}
+    </AuthLayout>
   );
 }

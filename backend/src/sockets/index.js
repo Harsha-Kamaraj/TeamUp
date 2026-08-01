@@ -3,7 +3,7 @@ import env from '../config/env.js';
 import logger from '../utils/logger.js';
 import { socketAuth } from './socketAuth.js';
 import { setIO } from './registry.js';
-import { createMessage, markConversationRead } from '../services/chat.service.js';
+import { createMessage, markConversationRead, toggleReaction } from '../services/chat.service.js';
 import { notifyMessage, markConversationNotificationsRead } from '../services/notification.service.js';
 
 // userId -> number of active connections (supports multiple tabs).
@@ -36,12 +36,13 @@ export function initSocket(httpServer) {
     socket.emit('presence:init', { online: [...online.keys()] });
 
     // ── Send a message ────────────────────────────────────────────────────
-    socket.on('message:send', async ({ conversationId, text }, ack) => {
+    socket.on('message:send', async ({ conversationId, text, attachment }, ack) => {
       try {
         const { message, recipientIds } = await createMessage({
           conversationId,
           senderId: userId,
           text,
+          attachment,
         });
         const payload = { conversationId, message: message.toJSON() };
         // Deliver to the sender (tab sync) and every recipient.
@@ -59,6 +60,24 @@ export function initSocket(httpServer) {
       }
     });
 
+    // ── Emoji reactions ───────────────────────────────────────────────────
+    socket.on('message:react', async ({ messageId, emoji }, ack) => {
+      try {
+        const { conversationId, messageId: id, reactions, participantIds } = await toggleReaction({
+          messageId,
+          userId,
+          emoji,
+        });
+        // Everyone in the thread sees it, including the reactor (tab sync).
+        participantIds.forEach((pid) =>
+          io.to(`user:${pid}`).emit('message:reaction', { conversationId, messageId: id, reactions })
+        );
+        ack?.({ ok: true });
+      } catch (err) {
+        ack?.({ ok: false, error: err.message });
+      }
+    });
+
     // ── Typing indicator ──────────────────────────────────────────────────
     socket.on('typing', ({ conversationId, toUserId, typing }) => {
       if (toUserId) {
@@ -70,6 +89,8 @@ export function initSocket(httpServer) {
     socket.on('conversation:read', async ({ conversationId }, ack) => {
       try {
         const { otherIds } = await markConversationRead({ conversationId, userId });
+        // `by` lets group threads render "Seen by Ada, Sam" rather than a
+        // single boolean — the reader's id is what the client needs.
         otherIds.forEach((oid) =>
           io.to(`user:${oid}`).emit('conversation:read', { conversationId, by: userId })
         );

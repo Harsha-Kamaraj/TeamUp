@@ -42,10 +42,21 @@ const userSchema = new Schema(
     },
     password: {
       type: String,
-      required: [true, 'Password is required'],
+      // Google-authenticated accounts have no password — Google is the
+      // credential. Required only when there's no linked Google identity.
+      required: [
+        function requiredWithoutGoogle() {
+          return !this.googleId;
+        },
+        'Password is required',
+      ],
       minlength: [8, 'Password must be at least 8 characters'],
       select: false, // never returned unless explicitly `.select('+password')`
     },
+
+    // Google's stable user id ("sub"). Sparse so the unique index ignores the
+    // many password-only accounts that have no value here.
+    googleId: { type: String, unique: true, sparse: true, select: false },
     role: {
       type: String,
       enum: ['student', 'admin'],
@@ -127,6 +138,7 @@ const userSchema = new Schema(
         delete ret.passwordChangedAt;
         delete ret.avatarPublicId;
         delete ret.resumePublicId;
+        delete ret.googleId;
         return ret;
       },
     },
@@ -147,6 +159,8 @@ userSchema.pre('save', async function hashPassword() {
 // ── Instance methods ────────────────────────────────────────────────────
 /** Compare a plaintext candidate against the stored hash. */
 userSchema.methods.comparePassword = function comparePassword(candidate) {
+  // Google-only accounts have no hash; bcrypt would throw on undefined.
+  if (!this.password) return false;
   return bcrypt.compare(candidate, this.password);
 };
 

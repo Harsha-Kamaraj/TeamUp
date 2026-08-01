@@ -57,12 +57,18 @@ app.use(
   })
 );
 
-// Basic global rate limit to blunt abuse. Tighter, route-specific limits
-// (e.g. on login) come in later phases.
+// Basic global rate limit to blunt abuse. Tighter, route-specific limits live
+// in middleware/rateLimit.js (e.g. the stricter authLimiter on login).
+//
+// The cap is deliberately generous because our users are students: a whole
+// campus typically shares ONE outbound NAT IP, so an IP here can represent
+// hundreds of people rather than one. A low cap locks out an entire college.
+// (Per-user limiting would be tighter, but the key would have to come from an
+// unverified token at this point in the chain — trivially forged, so worse.)
 app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 300, // requests per window per IP
+    max: 1200, // requests per window per IP (shared across a campus)
     standardHeaders: true,
     legacyHeaders: false,
     message: { success: false, message: 'Too many requests, please try again later.' },

@@ -1,5 +1,8 @@
+import { OAuth2Client } from 'google-auth-library';
+
 import User from '../models/User.js';
 import env from '../config/env.js';
+import logger from '../utils/logger.js';
 import ApiError from '../utils/ApiError.js';
 import ApiResponse from '../utils/ApiResponse.js';
 import asyncHandler from '../utils/asyncHandler.js';
@@ -15,8 +18,13 @@ import {
 import {
   sendVerificationEmail,
   sendPasswordResetEmail,
+  isEmailConfigured,
 } from '../services/email.service.js';
 import { notifySystem } from '../services/notification.service.js';
+
+// Verifies Google ID tokens. Constructed once; harmless when Google is unset
+// because the endpoint refuses the request before ever calling it.
+const googleClient = new OAuth2Client(env.google.clientId);
 
 // Small audit trail attached to each refresh-token session.
 function sessionMeta(req) {
@@ -44,9 +52,25 @@ export const register = asyncHandler(async (req, res) => {
 
   const user = new User({ name, email, password });
   const rawVerifyToken = user.createEmailVerificationToken();
+
+  // Local development with no mail provider would otherwise be a dead end:
+  // verification is required to post, but no link can ever arrive. Auto-verify
+  // in that exact situation so the app is usable offline.
+  //
+  // This CANNOT weaken production: it requires NODE_ENV=development *and* no
+  // SMTP credentials. On Render both are false, so the gate stays enforced.
+  const cannotDeliverMail = env.isDevelopment && !isEmailConfigured();
+  if (cannotDeliverMail) {
+    user.isEmailVerified = true;
+    logger.warn(
+      `Auto-verified ${email}: development mode with no SMTP configured. ` +
+        'Set SMTP_* in backend/.env to exercise the real verification flow.'
+    );
+  }
+
   await user.save(); // hashes password + persists verification hash
 
-  await sendVerificationEmail(user, rawVerifyToken);
+  if (!cannotDeliverMail) await sendVerificationEmail(user, rawVerifyToken);
 
   // Welcome notification (waiting in the bell when they first look).
   await notifySystem({
@@ -69,7 +93,13 @@ export const login = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
   // `+password` because it's select:false by default.
-  const user = await User.findOne({ email }).select('+password');
+  const user = await User.findOne({ email }).select('+password +googleId');
+
+  // Point Google-only accounts at the right button instead of a dead end.
+  if (user && !user.password && user.googleId) {
+    throw ApiError.badRequest('This account uses Google Sign-In. Use the Google button to log in.');
+  }
+
   if (!user || !(await user.comparePassword(password))) {
     throw ApiError.unauthorized('Invalid email or password');
   }
@@ -79,6 +109,74 @@ export const login = asyncHandler(async (req, res) => {
 
   const accessToken = await startSession(req, res, user);
   res.json(new ApiResponse(200, { user, accessToken }, 'Logged in successfully'));
+});
+
+/**
+ * POST /auth/google
+ * Sign in (or sign up) with a Google ID token obtained in the browser via
+ * Google Identity Services.
+ *
+ * Google has already proven the user controls the address, so these accounts
+ * skip our own email-verification step entirely.
+ *
+ * Linking rule: if an account already exists for the same email, we attach the
+ * Google id to it rather than creating a duplicate — so someone who registered
+ * with a password can later use the Google button and land in the same account.
+ */
+export const googleAuth = asyncHandler(async (req, res) => {
+  if (!env.google.clientId) {
+    throw ApiError.badRequest('Google Sign-In is not configured on this server');
+  }
+
+  const { credential } = req.body;
+  if (!credential) throw ApiError.badRequest('Missing Google credential');
+
+  let payload;
+  try {
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: env.google.clientId, // rejects tokens minted for another app
+    });
+    payload = ticket.getPayload();
+  } catch {
+    throw ApiError.unauthorized('Could not verify your Google sign-in. Please try again.');
+  }
+
+  // Google sets this false for unverified Workspace addresses.
+  if (!payload?.email || payload.email_verified === false) {
+    throw ApiError.unauthorized('Your Google account has no verified email address');
+  }
+
+  const email = payload.email.toLowerCase();
+  let user = await User.findOne({ $or: [{ googleId: payload.sub }, { email }] }).select('+googleId');
+
+  if (user) {
+    // Link on first Google sign-in for an existing password account.
+    if (!user.googleId) user.googleId = payload.sub;
+    // Signing in through Google proves the address; trust it.
+    if (!user.isEmailVerified) user.isEmailVerified = true;
+    if (!user.avatar && payload.picture) user.avatar = payload.picture;
+    user.lastLoginAt = new Date();
+    await user.save({ validateBeforeSave: false });
+  } else {
+    user = await User.create({
+      name: payload.name?.trim() || email.split('@')[0],
+      email,
+      googleId: payload.sub,
+      isEmailVerified: true,
+      avatar: payload.picture || '',
+      lastLoginAt: new Date(),
+    });
+
+    await notifySystem({
+      userId: user.id,
+      text: 'Welcome to Squadly! Complete your profile to get noticed.',
+      link: '/settings/profile',
+    }).catch(() => {});
+  }
+
+  const accessToken = await startSession(req, res, user);
+  res.json(new ApiResponse(200, { user, accessToken }, 'Signed in with Google'));
 });
 
 /**
@@ -151,9 +249,19 @@ export const resendVerification = asyncHandler(async (req, res) => {
 
   const rawVerifyToken = user.createEmailVerificationToken();
   await user.save({ validateBeforeSave: false });
-  await sendVerificationEmail(user, rawVerifyToken);
+  const { delivered } = await sendVerificationEmail(user, rawVerifyToken);
 
-  res.json(new ApiResponse(200, null, 'Verification email sent'));
+  // Be honest when mail isn't actually configured (or the provider refused) —
+  // claiming "sent" leaves the user waiting on an email that will never come.
+  res.json(
+    new ApiResponse(
+      200,
+      { delivered },
+      delivered
+        ? 'Verification email sent'
+        : 'Email delivery is not configured on this server yet. The verification link was written to the server logs.'
+    )
+  );
 });
 
 /**
@@ -209,8 +317,17 @@ export const changePassword = asyncHandler(async (req, res) => {
   const { currentPassword, newPassword } = req.body;
 
   const user = await User.findById(req.user.id).select('+password');
-  if (!(await user.comparePassword(currentPassword))) {
-    throw ApiError.unauthorized('Current password is incorrect');
+
+  // An account created through Google has no password to confirm. Rather than
+  // dead-ending it, treat this as setting a first password — the user keeps
+  // Google Sign-In and gains email/password login alongside it.
+  const isSettingFirstPassword = !user.password;
+
+  if (!isSettingFirstPassword) {
+    if (!currentPassword) throw ApiError.badRequest('Current password is required');
+    if (!(await user.comparePassword(currentPassword))) {
+      throw ApiError.unauthorized('Current password is incorrect');
+    }
   }
 
   user.password = newPassword;
@@ -220,5 +337,11 @@ export const changePassword = asyncHandler(async (req, res) => {
   await revokeAllUserTokens(user.id);
   const accessToken = await startSession(req, res, user);
 
-  res.json(new ApiResponse(200, { accessToken }, 'Password changed successfully'));
+  res.json(
+    new ApiResponse(
+      200,
+      { accessToken },
+      isSettingFirstPassword ? 'Password set successfully' : 'Password changed successfully'
+    )
+  );
 });

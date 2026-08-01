@@ -2,6 +2,8 @@ import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Code2, Briefcase, Globe, FileText } from 'lucide-react';
 import { userApi } from '@/api/userApi';
+import { postApi } from '@/api/postApi';
+import { postTypeMeta } from '@/lib/postOptions';
 import { useAuth } from '@/contexts/AuthContext';
 import { Alert, Avatar, Badge, Button, Card, Container, Spinner } from '@/components/ui';
 import MessageButton from '@/components/chat/MessageButton';
@@ -179,7 +181,56 @@ export default function ProfilePage() {
             )}
           </Section>
         </Card>
+
+        {/* Their open opportunities — the reason you searched for this person. */}
+        <UserPosts userId={id} name={user.name} isMe={isOwnProfile} />
       </div>
     </Container>
+  );
+}
+
+/** Open opportunities posted by this student. */
+function UserPosts({ userId, name, isMe }) {
+  const { data, isLoading } = useQuery({
+    queryKey: ['posts-by-author', userId],
+    queryFn: () => postApi.list({ author: userId, limit: 10 }),
+  });
+
+  const posts = data?.posts ?? [];
+
+  return (
+    <Card className="mt-6">
+      <h2 className="text-sm font-semibold tracking-wide text-slate-500 uppercase">
+        {isMe ? 'Your open opportunities' : `Opportunities by ${name.split(' ')[0]}`}
+      </h2>
+
+      {isLoading ? (
+        <div className="grid place-items-center py-6 text-brand-600">
+          <Spinner />
+        </div>
+      ) : posts.length === 0 ? (
+        <p className="mt-4 text-sm text-slate-400">
+          {isMe ? "You don't have any open posts." : 'No open opportunities right now.'}
+        </p>
+      ) : (
+        <ul className="mt-4 space-y-3">
+          {posts.map((p) => (
+            <li key={p.id}>
+              <Link
+                to={`/posts/${p.id}`}
+                className="group block rounded-lg border border-slate-200 p-3 transition-colors hover:border-brand-300"
+              >
+                <p className="text-[15px] font-medium text-slate-900 group-hover:text-brand-700">
+                  {p.title}
+                </p>
+                <p className="mt-0.5 text-[13px] text-slate-500">
+                  {postTypeMeta(p).label} · {p.membersNeeded} needed
+                </p>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Card>
   );
 }

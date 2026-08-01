@@ -14,6 +14,8 @@ export const authApi = {
   getMe: () => apiClient.get('/auth/me').then((r) => r.data.data.user),
 
   verifyEmail: (token) => apiClient.post('/auth/verify-email', { token }).then((r) => r.data),
+  // `credential` is the ID token from Google Identity Services.
+  google: (credential) => apiClient.post('/auth/google', { credential }).then((r) => r.data),
 
   resendVerification: () => apiClient.post('/auth/resend-verification').then((r) => r.data),
 

@@ -1,13 +1,33 @@
-import { Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { CheckCircle2 } from 'lucide-react';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { CheckCircle2, MessagesSquare } from 'lucide-react';
 import { postApi } from '@/api/postApi';
-import { Avatar, Badge, Card, Spinner } from '@/components/ui';
+import { conversationApi } from '@/api/conversationApi';
+import { useAuth } from '@/contexts/AuthContext';
+import { Alert, Avatar, Badge, Button, Card, Input, Spinner } from '@/components/ui';
+import { getErrorMessage } from '@/utils/getErrorMessage';
 
 export default function TeamPanel({ postId }) {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [naming, setNaming] = useState(false);
+  const [groupName, setGroupName] = useState('');
+  const [error, setError] = useState('');
+
   const { data: team, isLoading } = useQuery({
     queryKey: ['team', postId],
     queryFn: () => postApi.getTeam(postId),
+  });
+
+  const createChat = useMutation({
+    mutationFn: () => conversationApi.createTeam(postId, groupName),
+    onSuccess: (conversation) => {
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      navigate(`/chat/${conversation.id}`);
+    },
+    onError: (err) => setError(getErrorMessage(err, 'Could not create the team chat.')),
   });
 
   if (isLoading) {
@@ -20,6 +40,9 @@ export default function TeamPanel({ postId }) {
   if (!team) return null;
 
   const pct = team.needed > 0 ? Math.min(100, Math.round((team.count / team.needed) * 100)) : 0;
+  const lead = team.members.find((m) => m.isAuthor);
+  const isLead = !!user && lead?.id === user.id;
+  const defaultName = `${lead?.name ?? 'My'}'s team`;
 
   return (
     <Card className="mt-6">
@@ -70,6 +93,50 @@ export default function TeamPanel({ postId }) {
         <p className="mt-5 inline-flex items-center gap-1.5 text-sm text-emerald-600">
           <CheckCircle2 className="h-4 w-4" /> All required skills are covered.
         </p>
+      )}
+
+      {/* Team group chat — only the lead can start it, and only once there's
+          actually someone else on the team. */}
+      {isLead && team.count > 1 && (
+        <div className="mt-6 border-t border-slate-100 pt-5">
+          {error && (
+            <div className="mb-3">
+              <Alert variant="error">{error}</Alert>
+            </div>
+          )}
+
+          {naming ? (
+            <div className="space-y-3">
+              <Input
+                label="Group name"
+                placeholder={defaultName}
+                value={groupName}
+                onChange={(e) => setGroupName(e.target.value)}
+                hint={`Leave blank to use “${defaultName}”.`}
+                maxLength={80}
+              />
+              <div className="flex flex-wrap gap-2">
+                <Button loading={createChat.isPending} onClick={() => createChat.mutate()}>
+                  <MessagesSquare className="h-4 w-4" />
+                  Create group chat
+                </Button>
+                <Button variant="ghost" onClick={() => setNaming(false)}>
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sm text-slate-500">
+                Start a group chat with all {team.count} team members.
+              </p>
+              <Button variant="secondary" onClick={() => setNaming(true)}>
+                <MessagesSquare className="h-4 w-4" />
+                Team chat
+              </Button>
+            </div>
+          )}
+        </div>
       )}
     </Card>
   );

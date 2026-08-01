@@ -3,6 +3,7 @@ import ApiError from '../utils/ApiError.js';
 import ApiResponse from '../utils/ApiResponse.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import { uploadImage, deleteImage } from '../services/cloudinary.service.js';
+import escapeRegex from '../utils/escapeRegex.js';
 
 // Top-level profile fields the client may update directly.
 const EDITABLE_FIELDS = [
@@ -18,6 +19,33 @@ const EDITABLE_FIELDS = [
   'workMode',
 ];
 const LINK_FIELDS = ['github', 'linkedin', 'portfolio'];
+
+/**
+ * GET /users?search=<name>&limit=
+ * Find registered students by name, college, or skill — the entry point for
+ * "who is this person and what have they posted?".
+ *
+ * Returns only fields already visible on a public profile. Requires a search
+ * term so this can't be used to enumerate the whole user base.
+ */
+export const searchUsers = asyncHandler(async (req, res) => {
+  const term = req.query.search?.trim();
+  if (!term || term.length < 2) {
+    return res.json(new ApiResponse(200, { users: [] }, 'Search users'));
+  }
+
+  const limit = Math.min(20, Math.max(1, parseInt(req.query.limit, 10) || 8));
+  const rx = new RegExp(escapeRegex(term), 'i');
+
+  const users = await User.find({
+    $or: [{ name: rx }, { college: rx }, { skills: rx }],
+  })
+    .select('name avatar college department year skills')
+    .limit(limit)
+    .sort({ name: 1 });
+
+  res.json(new ApiResponse(200, { users }, 'Search users'));
+});
 
 /**
  * GET /users/:id

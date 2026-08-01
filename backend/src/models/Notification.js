@@ -19,6 +19,10 @@ const notificationSchema = new Schema(
     text: { type: String, required: true },
     link: { type: String, default: '' },
     read: { type: Boolean, default: false },
+    // How many events this notification stands for. Message notifications
+    // collapse per conversation and bump this instead of creating new rows,
+    // so ten messages from one person is one entry reading "10 new messages".
+    count: { type: Number, default: 1 },
   },
   {
     timestamps: true,

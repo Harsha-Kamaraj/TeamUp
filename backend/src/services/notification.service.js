@@ -34,13 +34,36 @@ export async function notifyInterest({ authorId, fromUser, post }) {
  * flood the bell.
  */
 export async function notifyMessage({ recipientId, sender, conversationId }) {
+  // Deliberately NOT filtered on `read: false`. Matching only unread entries
+  // meant that once the user glanced at the bell, the next message created a
+  // brand-new row — so one chat could fill the list with near-identical
+  // "New message from X" lines. Keying on the conversation alone keeps exactly
+  // one entry per chat and bumps a counter instead.
+  const existing = await Notification.findOne({
+    user: recipientId,
+    type: 'message',
+    conversation: conversationId,
+  });
+
+  // Only count messages the user hasn't seen yet: opening the chat marks the
+  // notification read, which resets the tally for the next burst.
+  const count = existing && !existing.read ? (existing.count ?? 1) + 1 : 1;
+  const text =
+    count > 1
+      ? `${count} new messages from ${sender.name}`
+      : `New message from ${sender.name}`;
+
   const notification = await Notification.findOneAndUpdate(
-    { user: recipientId, type: 'message', conversation: conversationId, read: false },
+    { user: recipientId, type: 'message', conversation: conversationId },
     {
       $set: {
         actor: sender.id,
-        text: `New message from ${sender.name}`,
+        text,
+        count,
+        read: false,
         link: `/chat/${conversationId}`,
+        // Bump so the freshest chat sorts to the top of the bell.
+        createdAt: new Date(),
       },
       $setOnInsert: { user: recipientId, type: 'message', conversation: conversationId },
     },

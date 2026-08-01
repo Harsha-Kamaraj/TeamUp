@@ -11,7 +11,7 @@ import NotificationBell from './NotificationBell';
 import ThemeToggle from './ThemeToggle';
 
 // Primary nav links.
-const NAV_LINKS = [{ label: 'Your Feed', to: '/browse' }];
+const NAV_LINKS = [{ label: 'Feed', to: '/browse' }];
 
 /** Messages link with a live unread badge. */
 function MessagesLink() {
@@ -34,7 +34,7 @@ function MessagesLink() {
     >
       <MessageSquare className="h-5 w-5" />
       {unread > 0 && (
-        <span className="absolute top-0.5 right-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-brand-600 px-1 text-[10px] font-bold text-white ring-2 ring-white">
+        <span className="absolute top-0.5 right-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-brand-600 px-1 text-[10px] font-bold text-white ring-2 ring-(--surface)">
           {unread > 9 ? '9+' : unread}
         </span>
       )}
@@ -78,10 +78,19 @@ export default function Navbar() {
             avoid a flash of the wrong state. */}
         <div className="flex items-center gap-1.5">
           <ThemeToggle />
-          {isLoading ? null : isAuthenticated ? (
+          {/* `user` is checked as well as `isAuthenticated`: they're separate
+              pieces of state, so there's a window where the status flips before
+              the profile lands. Rendering UserMenu with no user threw and, with
+              no boundary above it, blanked the whole page. */}
+          {isLoading ? null : isAuthenticated && user ? (
             <>
               <NotificationBell />
-              <MessagesLink />
+              {/* Hidden on lg+ where the feed's left rail carries Messages
+                  (with the same badge). Kept below lg, and in the user menu,
+                  so it's always reachable on pages without the rail. */}
+              <span className="lg:hidden">
+                <MessagesLink />
+              </span>
               <Link to="/posts/new" className="hidden sm:block">
                 <Button size="sm">
                   <Plus className="h-4 w-4" /> Create post

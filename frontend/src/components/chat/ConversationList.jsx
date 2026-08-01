@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { conversationApi } from '@/api/conversationApi';
 import { useSocket } from '@/contexts/SocketContext';
+import { Users } from 'lucide-react';
 import { Avatar, Spinner } from '@/components/ui';
 import { cn } from '@/utils/cn';
 
@@ -38,14 +39,29 @@ export default function ConversationList({ activeId }) {
                 )}
               >
                 <div className="relative shrink-0">
-                  <Avatar name={c.other?.name} src={c.other?.avatar} size="md" />
-                  {c.other && isOnline(c.other.id) && (
-                    <span className="absolute right-0 bottom-0 h-3 w-3 rounded-full border-2 border-[color:var(--surface)] bg-emerald-500" />
+                  {c.isGroup ? (
+                    <span className="bg-brand-gradient grid h-10 w-10 place-items-center rounded-full text-white">
+                      <Users className="h-5 w-5" />
+                    </span>
+                  ) : (
+                    <>
+                      <Avatar name={c.other?.name} src={c.other?.avatar} size="md" />
+                      {c.other && isOnline(c.other.id) && (
+                        <span className="absolute right-0 bottom-0 h-3 w-3 rounded-full border-2 border-[color:var(--surface)] bg-emerald-500" />
+                      )}
+                    </>
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center justify-between gap-2">
-                    <p className="truncate font-semibold text-slate-900">{c.other?.name ?? 'Unknown'}</p>
+                    <p className="truncate font-semibold text-slate-900">
+                      {c.isGroup ? c.name : (c.other?.name ?? 'Unknown')}
+                      {c.isGroup && (
+                        <span className="ml-1.5 text-xs font-normal text-slate-400">
+                          {c.members?.length} members
+                        </span>
+                      )}
+                    </p>
                     {c.unreadCount > 0 && (
                       <span className="shrink-0 rounded-full bg-brand-600 px-2 py-0.5 text-xs font-semibold text-white">
                         {c.unreadCount}

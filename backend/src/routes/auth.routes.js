@@ -18,6 +18,8 @@ const router = Router();
 // ── Public ──────────────────────────────────────────────────────────────
 router.post('/register', authLimiter, validate(registerSchema), authController.register);
 router.post('/login', authLimiter, validate(loginSchema), authController.login);
+// Google Sign-In: the body carries a Google ID token, verified server-side.
+router.post('/google', authLimiter, authController.googleAuth);
 
 // The refresh cookie is the credential here, so no `protect`.
 router.post('/refresh', authController.refresh);

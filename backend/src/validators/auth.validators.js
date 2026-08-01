@@ -55,6 +55,8 @@ export const resetPasswordSchema = z.object({
 });
 
 export const changePasswordSchema = z.object({
-  currentPassword: z.string({ error: 'Current password is required' }).min(1, 'Current password is required'),
+  // Optional here because Google-created accounts have no password to confirm.
+  // The controller still requires it whenever the account actually has one.
+  currentPassword: z.string().min(1, 'Current password is required').optional(),
   newPassword: strongPassword,
 });

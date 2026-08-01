@@ -30,3 +30,30 @@ export const uploadResume = multer({
   fileFilter: pdfFilter,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
 }).single('resume');
+
+/**
+ * Chat attachments. Deliberately narrow: images and PDFs only.
+ *
+ * Accepting arbitrary files on a public student platform means hosting
+ * executables and whatever else people upload, which we'd be responsible for.
+ * Images and PDFs cover the real use case (screenshots, problem statements,
+ * posters, slides) with far less exposure.
+ */
+const CHAT_MIME_ALLOWLIST = [
+  'application/pdf',
+  'image/png',
+  'image/jpeg',
+  'image/gif',
+  'image/webp',
+];
+
+function chatFileFilter(_req, file, cb) {
+  if (CHAT_MIME_ALLOWLIST.includes(file.mimetype)) return cb(null, true);
+  cb(new ApiError(400, 'Only images and PDF files can be shared in chat'));
+}
+
+export const uploadChatFile = multer({
+  storage,
+  fileFilter: chatFileFilter,
+  limits: { fileSize: 8 * 1024 * 1024 }, // 8 MB
+}).single('file');

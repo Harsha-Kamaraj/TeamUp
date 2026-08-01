@@ -20,7 +20,7 @@ export default function GuestRoute() {
   }
 
   if (isAuthenticated) {
-    const redirectTo = location.state?.from?.pathname ?? '/dashboard';
+    const redirectTo = location.state?.from?.pathname ?? '/browse';
     return <Navigate to={redirectTo} replace />;
   }
 

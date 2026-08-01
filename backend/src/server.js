@@ -16,6 +16,7 @@ import env from './config/env.js';
 import logger from './utils/logger.js';
 import { connectDatabase, disconnectDatabase } from './config/database.js';
 import { initSocket } from './sockets/index.js';
+import { startAttachmentCleanup } from './services/attachmentCleanup.service.js';
 
 const server = http.createServer(app);
 
@@ -25,6 +26,9 @@ initSocket(server);
 async function start() {
   // Try the DB first (won't crash in dev if it's not configured yet).
   await connectDatabase();
+
+  // Removes Cloudinary files whose messages are about to be dropped by the TTL.
+  startAttachmentCleanup();
 
   server.listen(env.port, () => {
     logger.info(`Squadly API running in ${env.nodeEnv} mode`);

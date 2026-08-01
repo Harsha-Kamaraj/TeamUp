@@ -36,6 +36,11 @@ function getTransport() {
   return cachedTransport;
 }
 
+/** True when real SMTP credentials are present (i.e. mail actually sends). */
+export function isEmailConfigured() {
+  return getTransport() !== null;
+}
+
 /** Low-level send. Falls back to logging in development. */
 async function sendEmail({ to, subject, html, text }) {
   const transport = getTransport();
@@ -49,9 +54,21 @@ async function sendEmail({ to, subject, html, text }) {
     return { delivered: false };
   }
 
-  const info = await transport.sendMail({ from: env.email.from, to, subject, html, text });
-  logger.info(`Email sent to ${to} (id: ${info.messageId})`);
-  return { delivered: true, messageId: info.messageId };
+  try {
+    const info = await transport.sendMail({ from: env.email.from, to, subject, html, text });
+    logger.info(`Email sent to ${to} (id: ${info.messageId})`);
+    return { delivered: true, messageId: info.messageId };
+  } catch (error) {
+    // Never let a mail-transport failure bubble into a request. Provider errors
+    // ("535 Username and Password not accepted", quota, DNS) are operator
+    // problems, not something to show a student mid-signup — and letting them
+    // throw here would fail a registration whose account was already created.
+    logger.error(`Email to ${to} failed: ${error.message}`);
+    // Fall back to the console link so local development still works when
+    // credentials are wrong.
+    if (text) logger.info(`Undelivered email body:\n${text}`);
+    return { delivered: false, error: error.message };
+  }
 }
 
 // Base URL the frontend serves its pages from (first allowed client origin).

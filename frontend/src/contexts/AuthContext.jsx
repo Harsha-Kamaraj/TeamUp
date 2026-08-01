@@ -54,6 +54,15 @@ export function AuthProvider({ children }) {
     return loggedInUser;
   }, []);
 
+  /** Exchange a Google ID token for a Squadly session. Same shape as login. */
+  const loginWithGoogle = useCallback(async (credential) => {
+    const { user: googleUser, accessToken } = await authApi.google(credential);
+    setAccessToken(accessToken);
+    setUser(googleUser);
+    setStatus('authenticated');
+    return googleUser;
+  }, []);
+
   const register = useCallback(async (payload) => {
     const { user: newUser, accessToken } = await authApi.register(payload);
     setAccessToken(accessToken);
@@ -92,12 +101,13 @@ export function AuthProvider({ children }) {
       isLoading: status === 'loading',
       isAuthenticated: status === 'authenticated',
       login,
+      loginWithGoogle,
       register,
       logout,
       refreshUser,
       updateCurrentUser,
     }),
-    [user, status, login, register, logout, refreshUser, updateCurrentUser]
+    [user, status, login, loginWithGoogle, register, logout, refreshUser, updateCurrentUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
