@@ -1,8 +1,8 @@
 {
-  "name": "teamup",
+  "name": "squadly",
   "version": "0.1.0",
   "private": true,
-  "description": "TeamUp — a student collaboration platform to find teammates for hackathons, research, startups, competitions, and open-source projects.",
+  "description": "Squadly — a student collaboration platform to find teammates for hackathons, research, startups, competitions, and open-source projects.",
   "type": "module",
   "engines": {
     "node": ">=20"

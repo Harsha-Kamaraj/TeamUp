@@ -49,6 +49,11 @@ services:
         sync: false
       - key: SMTP_PASS
         sync: false
+      # Google Sign-In (optional). The OAuth 2.0 Web *client id* only — no
+      # secret. Must match VITE_GOOGLE_CLIENT_ID on the frontend. Leave unset
+      # and the Google button is simply hidden; email/password login still works.
+      - key: GOOGLE_CLIENT_ID
+        sync: false
       # Image storage (Cloudinary) — required in production because Render's
       # disk is ephemeral (locally-saved uploads are wiped on every restart).
       - key: CLOUDINARY_CLOUD_NAME

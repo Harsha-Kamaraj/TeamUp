@@ -36,14 +36,28 @@ Browser ──▶ Vercel (frontend)  ──REST + WebSocket──▶  Render (ba
 
 ## 1. MongoDB Atlas (database)
 
-1. You already have a cluster. In Atlas, open **Network Access** → **Add IP Address** →
-   **Allow access from anywhere** (`0.0.0.0/0`). Render's IPs are dynamic, so this is
-   required for the backend to connect.
-2. **Database Access** → confirm your DB user + password.
-3. **Connect ▸ Drivers** → copy the connection string. It looks like:
-   `mongodb+srv://USER:PASSWORD@cluster0.xxxx.mongodb.net/squadly?retryWrites=true&w=majority`
-   (URL-encode special characters in the password, e.g. `@` → `%40`.)
-   Keep this for `MONGODB_URI`.
+> Use **your own** Atlas account — the cluster owner controls the data, billing, and
+> access. Nothing in this repo is tied to any particular account; the connection
+> string is supplied entirely through the `MONGODB_URI` environment variable.
+
+1. Sign up at [cloud.mongodb.com](https://cloud.mongodb.com) (Google sign-in is fine).
+2. **Create a cluster** → choose the **M0 / Free** tier → pick the region closest to
+   you → **Create Deployment**.
+3. Atlas prompts you to create a database user. Set a username and password and
+   **write both down** — the password is only shown once. → **Create Database User**.
+4. **Network Access** (left sidebar) → **Add IP Address** → **ALLOW ACCESS FROM
+   ANYWHERE** (`0.0.0.0/0`) → **Confirm**. Render's outbound IPs are dynamic, so
+   restricting by IP will block the backend.
+5. **Clusters** → **Connect** → **Drivers** → copy the connection string:
+   `mongodb+srv://USER:<password>@cluster0.xxxx.mongodb.net/?retryWrites=true&w=majority`
+6. Edit it in two places:
+   - Replace `<password>` with the real password. URL-encode special characters
+     (`@` → `%40`, `#` → `%23`, `/` → `%2F`, `:` → `%3A`).
+   - Insert the database name `squadly` before the `?`.
+
+   Final form:
+   `mongodb+srv://USER:pass123@cluster0.xxxx.mongodb.net/squadly?retryWrites=true&w=majority`
+7. Keep this for `MONGODB_URI`.
 
 ## 2. Cloudinary (images — required in production)
 
@@ -86,7 +100,20 @@ Browser ──▶ Vercel (frontend)  ──REST + WebSocket──▶  Render (ba
    Test it: visiting `https://squadly-api.onrender.com/api/v1/health` should return
    `"Squadly API is healthy"`. **Copy this URL.**
 
-## 5. Deploy the frontend → Vercel
+## 5. Point the proxy at your backend (do this BEFORE deploying)
+
+Open [`vercel.json`](frontend/vercel.json) and replace the placeholder host with the
+Render URL you copied in step 4:
+
+```diff
+- "destination": "https://REPLACE_WITH_RENDER_URL.onrender.com/api/:path*"
++ "destination": "https://squadly-api.onrender.com/api/:path*"
+```
+
+Commit and push. This rewrite is what makes the browser see the API as
+same-origin — without it every API call fails.
+
+## 6. Deploy the frontend → Vercel
 
 1. Vercel → **Add New ▸ Project** → import this GitHub repo.
 2. Set **Root Directory** to `frontend`. Vercel auto-detects Vite
@@ -96,18 +123,29 @@ Browser ──▶ Vercel (frontend)  ──REST + WebSocket──▶  Render (ba
 
    | Key | Value |
    |-----|-------|
-   | `VITE_API_URL` | `https://squadly-api.onrender.com/api/v1` (your Render URL + `/api/v1`) |
+   | `VITE_API_URL` | `/api/v1` — a **relative path**, not your Render URL |
+   | `VITE_SOCKET_URL` | `https://squadly-api.onrender.com` — your Render URL, no path |
+   | `VITE_GOOGLE_CLIENT_ID` | your Google client ID (skip if not using Google Sign-In) |
+
+   > **Why `VITE_API_URL` is relative:** step 5's rewrite proxies `/api/*` to Render, so
+   > the browser treats the API as same-origin and the login cookie is first-party. Point
+   > this straight at Render instead and Safari/Brave block that cookie as third-party —
+   > users get logged out on every refresh.
+   >
+   > **Why `VITE_SOCKET_URL` is absolute:** WebSockets can't travel through Vercel's
+   > rewrite, so chat connects directly to Render. Leave this unset and chat silently
+   > tries `localhost` and never connects.
 
 4. Deploy. You get a URL like `https://squadly.vercel.app`. **Copy it.**
 
-## 6. Connect the two (finish the loop)
+## 7. Connect the two (finish the loop)
 
 1. Back in **Render ▸ squadly-api ▸ Environment**, set:
    - `CLIENT_URL` = `https://squadly.vercel.app`  (your Vercel URL — enables CORS + secure cookies)
    - `SERVER_URL` = `https://squadly-api.onrender.com`  (your Render URL)
 2. Save → Render redeploys automatically. Done. 🎉
 
-## 7. Keep it awake (beat Render's cold start)
+## 8. Keep it awake (beat Render's cold start)
 
 Render's free service sleeps after 15 min idle (~40s cold start on next visit).
 Free fix: create a cron at [cron-job.org](https://cron-job.org) that GETs
@@ -116,7 +154,7 @@ free 750 hours and keeps the app snappy.
 
 ---
 
-## 8. Verify it works
+## 9. Verify it works
 
 On your live Vercel URL: sign up → check the verification email (or Render logs) →
 create a post → upload a profile photo (should persist to Cloudinary) → open a second
@@ -127,18 +165,22 @@ account in a private window and send a chat message (tests Socket.IO cross-origi
 **Backend (Render):** `NODE_ENV`, `API_PREFIX`, `MONGODB_URI`, `JWT_ACCESS_SECRET`,
 `JWT_ACCESS_EXPIRES_IN`, `REFRESH_TOKEN_EXPIRES_DAYS`, `EMAIL_TOKEN_EXPIRES_MINUTES`,
 `CLIENT_URL`, `SERVER_URL`, `EMAIL_FROM`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`,
-`SMTP_PASS`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET`.
-(See [`backend/.env.example`](backend/.env.example).)
+`SMTP_PASS`, `GOOGLE_CLIENT_ID`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`,
+`CLOUDINARY_API_SECRET`. (See [`backend/.env.example`](backend/.env.example).)
 
-**Frontend (Vercel):** `VITE_API_URL`. (See [`frontend/.env.example`](frontend/.env.example).)
+**Frontend (Vercel):** `VITE_API_URL`, `VITE_SOCKET_URL`, `VITE_GOOGLE_CLIENT_ID`.
+(See [`frontend/.env.example`](frontend/.env.example).)
 
 ## Troubleshooting
 
 | Symptom | Fix |
 |---------|-----|
 | **CORS error** in browser console | `CLIENT_URL` on Render must exactly match your Vercel URL (no trailing slash). |
-| **Login doesn't persist / logged out on refresh** | Frontend and backend must both be HTTPS; confirm `NODE_ENV=production` on Render (sets `SameSite=None; Secure` cookies). |
+| **Every API call 404s / "Not Found"** | `vercel.json` still has the `REPLACE_WITH_RENDER_URL` placeholder — see step 5. |
+| **Login doesn't persist / logged out on refresh** | `VITE_API_URL` must be the relative `/api/v1`, not your Render URL (step 6). Also confirm both sides are HTTPS and `NODE_ENV=production` on Render. |
+| **Chat never connects / no realtime updates** | `VITE_SOCKET_URL` is unset on Vercel, so it falls back to `localhost`. Set it to your Render URL and redeploy. |
+| **Google button missing** | `VITE_GOOGLE_CLIENT_ID` (Vercel) and `GOOGLE_CLIENT_ID` (Render) must both be set to the same client ID. |
 | **Can't connect to database** | Add `0.0.0.0/0` in Atlas Network Access; check the password is URL-encoded. |
 | **Uploaded photos disappear** | Cloudinary env vars aren't set — Render's disk is ephemeral. |
-| **First request very slow** | Render free-tier cold start; set up the pinger (step 7). |
+| **First request very slow** | Render free-tier cold start; set up the pinger (step 8). |
 | **Emails not arriving** | Verify your Brevo sender; without SMTP the links are printed in Render logs. |
