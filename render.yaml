@@ -38,11 +38,18 @@ services:
       # (used to build absolute URLs for any locally-stored uploads).
       - key: SERVER_URL
         sync: false
-      # Email (Brevo). EMAIL_FROM must be a verified sender in Brevo.
+      # Email. Set SMTP_HOST in the dashboard to match your provider:
+      #   Gmail → smtp.gmail.com   (SMTP_PASS must be a 16-char App Password
+      #                             from https://myaccount.google.com/apppasswords,
+      #                             spaces removed — a normal password is rejected)
+      #   Brevo → smtp-relay.brevo.com
+      # EMAIL_FROM must be an address you actually control on that provider.
+      # Leave SMTP_* unset entirely and the app falls back to printing
+      # verification/reset links into the Render logs instead of sending them.
       - key: EMAIL_FROM
         sync: false
       - key: SMTP_HOST
-        value: smtp-relay.brevo.com
+        sync: false
       - key: SMTP_PORT
         value: "587"
       - key: SMTP_USER
