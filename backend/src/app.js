@@ -17,6 +17,7 @@ import rateLimit from 'express-rate-limit';
 
 import env from './config/env.js';
 import logger from './utils/logger.js';
+import ApiError from './utils/ApiError.js';
 import apiRoutes from './routes/index.js';
 import notFound from './middleware/notFound.js';
 import errorHandler from './middleware/errorHandler.js';
@@ -39,7 +40,10 @@ app.use(
       if (!origin || env.clientUrls.includes(origin)) {
         return callback(null, true);
       }
-      return callback(new Error(`Origin ${origin} not allowed by CORS`));
+      // A disallowed origin is a rejected request, not a server fault — pass an
+      // ApiError so it comes back as 403 instead of a 500 that pollutes the
+      // logs with fake "internal errors".
+      return callback(ApiError.forbidden(`Origin ${origin} not allowed by CORS`));
     },
     credentials: true,
   })

@@ -45,6 +45,22 @@ apiClient.interceptors.request.use((cfg) => {
 // ── Response: refresh-on-401 with single-flight ───────────────────────────
 let refreshPromise = null;
 
+/**
+ * True for failures that mean "the server didn't answer", not "you're logged
+ * out": a sleeping Render free instance (its cold start outlives the proxy's
+ * timeout, surfacing as 502/503/504), or an outright network drop.
+ *
+ * These must never be mistaken for an auth failure — doing so logs a perfectly
+ * valid session out just because the backend was waking up.
+ */
+export function isTransientServerError(error) {
+  const status = error?.response?.status;
+  if (status === undefined) return true; // network error / timeout — no response
+  return status === 502 || status === 503 || status === 504;
+}
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 async function refreshAccessToken() {
   // Use a bare axios call (not apiClient) to avoid interceptor recursion.
   const res = await axios.post(`${config.apiUrl}/auth/refresh`, {}, { withCredentials: true });
@@ -52,6 +68,12 @@ async function refreshAccessToken() {
   setAccessToken(token);
   return token;
 }
+
+// How many times a safe (idempotent) request rides out a sleeping backend, and
+// how long to wait between attempts. Render's free cold start is ~50s, so three
+// spaced retries cover it without leaving the user staring at a dead screen.
+const GATEWAY_RETRIES = 3;
+const GATEWAY_RETRY_DELAY_MS = 4000;
 
 apiClient.interceptors.response.use(
   (response) => response,
@@ -75,9 +97,27 @@ apiClient.interceptors.response.use(
         return apiClient(original);
       } catch (refreshError) {
         refreshPromise = null;
-        clearAccessToken();
-        onAuthFailure?.();
+        // Only a refresh that was actually *rejected* means the session is
+        // gone. A 502/504 from a cold-starting backend says nothing about the
+        // cookie's validity, so keep the token and let the caller retry.
+        if (!isTransientServerError(refreshError)) {
+          clearAccessToken();
+          onAuthFailure?.();
+        }
         return Promise.reject(refreshError);
+      }
+    }
+
+    // Retry safe requests while the backend wakes up. Only GET/HEAD are retried
+    // automatically: a POST may already have been applied server-side before the
+    // proxy gave up, and replaying it could duplicate the write.
+    const method = (original?.method ?? 'get').toLowerCase();
+    const isSafe = method === 'get' || method === 'head';
+    if (original && isSafe && isTransientServerError(error)) {
+      original._gatewayRetries = (original._gatewayRetries ?? 0) + 1;
+      if (original._gatewayRetries <= GATEWAY_RETRIES) {
+        await sleep(GATEWAY_RETRY_DELAY_MS);
+        return apiClient(original);
       }
     }
 

@@ -1,9 +1,14 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { authApi } from '@/api/authApi';
-import { setOnAuthFailure } from '@/api/axiosClient';
+import { setOnAuthFailure, isTransientServerError } from '@/api/axiosClient';
 import { setAccessToken, clearAccessToken } from '@/lib/authToken';
 
 const AuthContext = createContext(null);
+
+// Session restore rides out a cold-starting backend for roughly a minute
+// (Render's free tier takes ~50s to wake) before concluding we're logged out.
+const SESSION_RESTORE_RETRIES = 12;
+const SESSION_RESTORE_RETRY_DELAY_MS = 5000;
 
 /**
  * AuthProvider — holds the current user and session status, and exposes auth
@@ -17,6 +22,9 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   // 'loading' until we know; then 'authenticated' | 'unauthenticated'.
   const [status, setStatus] = useState('loading');
+  // True while we're waiting on a backend that's cold-starting, so the UI can
+  // explain the delay instead of looking broken.
+  const [isServerWaking, setIsServerWaking] = useState(false);
 
   // Restore session on first load + react to unrecoverable auth failures.
   useEffect(() => {
@@ -29,15 +37,30 @@ export function AuthProvider({ children }) {
 
     let cancelled = false;
     (async () => {
-      try {
-        const me = await authApi.getMe();
-        if (cancelled) return;
-        setUser(me);
-        setStatus('authenticated');
-      } catch {
-        if (cancelled) return;
-        setUser(null);
-        setStatus('unauthenticated');
+      // A free-tier backend can be asleep on first paint. Its cold start shows
+      // up as a gateway error, which says nothing about whether we're logged
+      // in — so ride those out rather than declaring the user logged out and
+      // flashing "Log in / Sign up" at someone who has a perfectly good session.
+      for (let attempt = 0; ; attempt += 1) {
+        try {
+          const me = await authApi.getMe();
+          if (cancelled) return;
+          setUser(me);
+          setStatus('authenticated');
+          setIsServerWaking(false);
+          return;
+        } catch (error) {
+          if (cancelled) return;
+          if (isTransientServerError(error) && attempt < SESSION_RESTORE_RETRIES) {
+            setIsServerWaking(true);
+            await new Promise((r) => setTimeout(r, SESSION_RESTORE_RETRY_DELAY_MS));
+            continue;
+          }
+          setUser(null);
+          setStatus('unauthenticated');
+          setIsServerWaking(false);
+          return;
+        }
       }
     })();
 
@@ -100,6 +123,7 @@ export function AuthProvider({ children }) {
       status,
       isLoading: status === 'loading',
       isAuthenticated: status === 'authenticated',
+      isServerWaking,
       login,
       loginWithGoogle,
       register,
@@ -107,7 +131,17 @@ export function AuthProvider({ children }) {
       refreshUser,
       updateCurrentUser,
     }),
-    [user, status, login, loginWithGoogle, register, logout, refreshUser, updateCurrentUser]
+    [
+      user,
+      status,
+      isServerWaking,
+      login,
+      loginWithGoogle,
+      register,
+      logout,
+      refreshUser,
+      updateCurrentUser,
+    ]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
